@@ -2,58 +2,945 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}My Domain{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyShop - Online Einkaufen{% endblock %}</title>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Inline critical CSS for mobile */
-        .mobile-only { display: none; }
-        .desktop-only { display: block; }
-
-        @media (max-width: 768px) {
-            .mobile-only { display: block; }
-            .desktop-only { display: none; }
-        }
-    </style>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Static CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Block for page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
 </head>
 <body>
-    <!-- Mobile Header -->
-    <div class="mobile-only">
-        {% include 'mobile_header.html' %}
+    <!-- Main Header -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <a href="/">
+                        <i class="fas fa-shopping-bag logo-icon"></i>
+                        <span class="logo-text">MyShop</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Search -->
+                <div class="desktop-search">
+                    <form class="search-form">
+                        <input type="text" class="search-input" placeholder="Produkte suchen...">
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Desktop Actions -->
+                <div class="desktop-actions">
+                    {% if user.is_authenticated %}
+                    <div class="header-action account-action">
+                        <i class="fas fa-user-circle"></i>
+                        <div class="account-dropdown">
+                            <div class="account-header">
+                                <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                <small>{{ user.email }}</small>
+                            </div>
+                            <a href="{% url 'profile' %}">
+                                <i class="fas fa-user"></i> Mein Konto
+                            </a>
+                            <a href="{% url 'orders' %}">
+                                <i class="fas fa-box"></i> Meine Bestellungen
+                            </a>
+                            <a href="{% url 'tickets' %}">
+                                <i class="fas fa-ticket-alt"></i> Meine Tickets
+                            </a>
+                            <a href="{% url 'wishlist' %}">
+                                <i class="far fa-heart"></i> Wunschliste
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{% url 'logout' %}" class="logout-link">
+                                <i class="fas fa-sign-out-alt"></i> Abmelden
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="header-action">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Anmelden</span>
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'cart' %}" class="header-action cart-action">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count">0</span>
+                        <span>Warenkorb</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Desktop Subheader -->
+    <div class="desktop-subheader">
+        <div class="container">
+            <div class="subheader-content">
+                <!-- Categories Menu -->
+                <div class="categories-menu">
+                    <a href="#" class="all-categories">
+                        <i class="fas fa-bars"></i> Alle Kategorien
+                    </a>
+                    <div class="categories-dropdown">
+                        <a href="/category/electronics/">
+                            <i class="fas fa-laptop"></i> Elektronik
+                        </a>
+                        <a href="/category/books/">
+                            <i class="fas fa-book"></i> Bücher
+                        </a>
+                        <a href="/category/fashion/">
+                            <i class="fas fa-tshirt"></i> Mode
+                        </a>
+                        <a href="/category/home/">
+                            <i class="fas fa-home"></i> Haushalt
+                        </a>
+                        <a href="/category/sports/">
+                            <i class="fas fa-futbol"></i> Sport
+                        </a>
+                        <a href="/category/toys/">
+                            <i class="fas fa-gamepad"></i> Spielzeug
+                        </a>
+                        <a href="/category/automotive/">
+                            <i class="fas fa-car"></i> Auto & Motorrad
+                        </a>
+                        <a href="/category/health/">
+                            <i class="fas fa-heartbeat"></i> Gesundheit
+                        </a>
+                        <a href="/category/jewelry/">
+                            <i class="fas fa-gem"></i> Schmuck
+                        </a>
+                        <a href="/category/food/">
+                            <i class="fas fa-utensils"></i> Lebensmittel
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Subheader Links -->
+                <div class="subheader-links">
+                    <a href="/deals/">
+                        <i class="fas fa-tag"></i> Angebote
+                    </a>
+                    <a href="/new/">
+                        <i class="fas fa-star"></i> Neuheiten
+                    </a>
+                    <a href="/bestsellers/">
+                        <i class="fas fa-chart-line"></i> Bestseller
+                    </a>
+                    <a href="/service/">
+                        <i class="fas fa-headset"></i> Service
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Desktop Header -->
-    <div class="desktop-only">
-        {% include 'desktop_header.html' %}
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <!-- Mobile Search -->
+        <div class="mobile-search">
+            <form class="search-form">
+                <input type="text" class="search-input" placeholder="Produkte suchen...">
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Mobile Profile -->
+        <div class="mobile-profile">
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}">
+                    <i class="fas fa-user-circle"></i>
+                    <div class="profile-info">
+                        <span class="profile-name">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="profile-email">{{ user.email }}</span>
+                    </div>
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Anmelden oder registrieren</span>
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav">
+            <a href="/">
+                <i class="fas fa-home"></i>
+                <span>Startseite</span>
+            </a>
+            
+            <a href="{% url 'profile' %}">
+                <i class="fas fa-user"></i>
+                <span>Mein Konto</span>
+            </a>
+            
+            <a href="{% url 'orders' %}">
+                <i class="fas fa-box"></i>
+                <span>Meine Bestellungen</span>
+            </a>
+            
+            <a href="{% url 'tickets' %}">
+                <i class="fas fa-ticket-alt"></i>
+                <span>Meine Tickets</span>
+            </a>
+            
+            <a href="{% url 'wishlist' %}">
+                <i class="far fa-heart"></i>
+                <span>Wunschliste</span>
+            </a>
+            
+            <a href="{% url 'cart' %}">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Warenkorb</span>
+                <span class="cart-count">0</span>
+            </a>
+            
+            <div class="mobile-categories">
+                <h3>Kategorien</h3>
+                <a href="/category/electronics/">
+                    <i class="fas fa-laptop"></i> Elektronik
+                </a>
+                <a href="/category/books/">
+                    <i class="fas fa-book"></i> Bücher
+                </a>
+                <a href="/category/fashion/">
+                    <i class="fas fa-tshirt"></i> Mode
+                </a>
+                <a href="/category/home/">
+                    <i class="fas fa-home"></i> Haushalt
+                </a>
+                <a href="/category/sports/">
+                    <i class="fas fa-futbol"></i> Sport
+                </a>
+            </div>
+            
+            <a href="/deals/">
+                <i class="fas fa-tag"></i>
+                <span>Angebote</span>
+            </a>
+            
+            <a href="/service/">
+                <i class="fas fa-headset"></i>
+                <span>Kundenservice</span>
+            </a>
+            
+            {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Abmelden</span>
+            </a>
+            {% endif %}
+        </nav>
     </div>
 
-    <!-- Mobile menu overlay backdrop -->
-    <div class="menu-backdrop" id="menuBackdrop"></div>
-
+    <!-- Main Content -->
     <main class="main-content">
-        {% block content %}{% endblock %}
+        {% block content %}
+        <!-- Page content goes here -->
+        {% endblock %}
     </main>
 
-    {% include 'footer.html' %}
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>MyShop</h3>
+                    <p>Ihr zuverlässiger Online-Shop für alle Bedürfnisse.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Kundenservice</h3>
+                    <a href="/help/">Hilfe & Kontakt</a>
+                    <a href="/shipping/">Versand & Lieferung</a>
+                    <a href="/returns/">Rückgabe & Umtausch</a>
+                    <a href="/faq/">FAQ</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Über uns</h3>
+                    <a href="/about/">Über MyShop</a>
+                    <a href="/careers/">Karriere</a>
+                    <a href="/impressum/">Impressum</a>
+                    <a href="/privacy/">Datenschutz</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Zahlungsmethoden</h3>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                        <i class="fab fa-cc-amazon-pay"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MyShop. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}"></script>
+    <!-- Alert Messages Container -->
+    <div id="alert-container"></div>
 
-    {% block extra_scripts %}{% endblock %}
+    <!-- JavaScript -->
+    <script src="/static/js/main.js"></script>
+    
+    <!-- Block for page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Global Styles -->
+    <style>
+    /* Reset and Base Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-    <script>
-        // Mobile detection
-        function isMobileDevice() {
-            return window.innerWidth <= 768 ||
-                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    body {
+        font-family: 'Inter', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    /* Main Header Styles */
+    .main-header {
+        background-color: #fff;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 0;
+        height: 70px;
+    }
+
+    .logo a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #007bff;
+    }
+
+    .logo-icon {
+        font-size: 28px;
+    }
+
+    /* Desktop Search */
+    .desktop-search {
+        flex: 1;
+        max-width: 600px;
+        margin: 0 30px;
+    }
+
+    .search-form {
+        display: flex;
+        position: relative;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid #007bff;
+        border-right: none;
+        border-radius: 25px 0 0 25px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .search-input:focus {
+        border-color: #0056b3;
+    }
+
+    .search-btn {
+        background: #007bff;
+        color: white;
+        border: 2px solid #007bff;
+        border-left: none;
+        padding: 12px 25px;
+        border-radius: 0 25px 25px 0;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .search-btn:hover {
+        background: #0056b3;
+        border-color: #0056b3;
+    }
+
+    /* Desktop Actions */
+    .desktop-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .header-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+        transition: color 0.3s;
+        padding: 5px 10px;
+        border-radius: 5px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .header-action:hover {
+        color: #007bff;
+        background-color: #f8f9fa;
+    }
+
+    .header-action i {
+        font-size: 22px;
+        margin-bottom: 3px;
+    }
+
+    .account-action {
+        position: relative;
+    }
+
+    .account-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        min-width: 250px;
+        z-index: 1001;
+        margin-top: 10px;
+        padding: 15px 0;
+    }
+
+    .account-action:hover .account-dropdown {
+        display: block;
+    }
+
+    .account-header {
+        padding: 0 20px 15px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+    }
+
+    .account-header strong {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 5px;
+    }
+
+    .account-header small {
+        color: #666;
+        font-size: 12px;
+    }
+
+    .account-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        color: #333;
+        transition: all 0.3s;
+    }
+
+    .account-dropdown a:hover {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #eee;
+        margin: 10px 0;
+    }
+
+    .logout-link {
+        color: #dc3545 !important;
+    }
+
+    .cart-action {
+        position: relative;
+    }
+
+    .cart-count {
+        position: absolute;
+        top: -8px;
+        right: 0;
+        background: #ff4757;
+        color: white;
+        font-size: 12px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #333;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+
+    .mobile-menu-btn:hover {
+        background: #f8f9fa;
+    }
+
+    /* Desktop Subheader */
+    .desktop-subheader {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border-bottom: 1px solid #dee2e6;
+        padding: 12px 0;
+        position: sticky;
+        top: 70px;
+        z-index: 999;
+    }
+
+    .subheader-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .categories-menu {
+        position: relative;
+    }
+
+    .all-categories {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .all-categories:hover {
+        background: #0056b3;
+        color: white;
+    }
+
+    .categories-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        padding: 10px 0;
+        min-width: 250px;
+        z-index: 1000;
+        margin-top: 5px;
+    }
+
+    .categories-dropdown.show {
+        display: block;
+    }
+
+    .categories-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .categories-dropdown a:hover {
+        background-color: #f8f9fa;
+        color: #007bff;
+    }
+
+    .subheader-links {
+        display: flex;
+        gap: 25px;
+    }
+
+    .subheader-links a {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #495057;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 14px;
+        transition: color 0.3s;
+    }
+
+    .subheader-links a:hover {
+        color: #007bff;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        right: -320px;
+        width: 320px;
+        height: 100%;
+        background: white;
+        box-shadow: -2px 0 15px rgba(0,0,0,0.1);
+        z-index: 1002;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .mobile-menu.active {
+        right: 0;
+    }
+
+    .mobile-search {
+        padding: 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-search .search-form {
+        display: flex;
+    }
+
+    .mobile-search .search-input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-right: none;
+        border-radius: 5px 0 0 5px;
+        font-size: 14px;
+    }
+
+    .mobile-search .search-btn {
+        background: #007bff;
+        color: white;
+        border: 1px solid #007bff;
+        border-left: none;
+        padding: 12px 20px;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+    }
+
+    .mobile-profile {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-profile a {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .mobile-profile i {
+        font-size: 40px;
+        color: #007bff;
+    }
+
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-name {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 3px;
+    }
+
+    .profile-email {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .mobile-nav {
+        padding: 20px;
+    }
+
+    .mobile-nav a {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 0;
+        color: #333;
+        text-decoration: none;
+        border-bottom: 1px solid #f5f5f5;
+        transition: color 0.3s;
+    }
+
+    .mobile-nav a:last-child {
+        border-bottom: none;
+    }
+
+    .mobile-nav a:hover {
+        color: #007bff;
+    }
+
+    .mobile-nav i {
+        width: 20px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .mobile-categories {
+        margin: 20px 0;
+        padding: 15px 0;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mobile-categories h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    .mobile-categories a {
+        padding-left: 35px;
+        font-size: 14px;
+    }
+
+    .logout-link {
+        color: #dc3545 !important;
+    }
+
+    /* Main Content */
+    .main-content {
+        min-height: calc(100vh - 200px);
+        padding: 20px 0;
+    }
+
+    /* Footer */
+    .main-footer {
+        background: #2c3e50;
+        color: white;
+        padding: 40px 0 20px;
+        margin-top: 40px;
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .footer-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+        color: #fff;
+    }
+
+    .footer-section p {
+        color: #bdc3c7;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .footer-section a {
+        display: block;
+        color: #bdc3c7;
+        margin-bottom: 8px;
+        transition: color 0.3s;
+    }
+
+    .footer-section a:hover {
+        color: #007bff;
+    }
+
+    .payment-methods {
+        display: flex;
+        gap: 15px;
+        font-size: 30px;
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #34495e;
+        color: #bdc3c7;
+        font-size: 14px;
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        padding: 0;
+        max-width: 350px;
+        z-index: 1003;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+    }
+
+    .alert-message.show {
+        transform: translateX(0);
+    }
+
+    .alert-message.success {
+        border-left: 4px solid #28a745;
+    }
+
+    .alert-message.error {
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert-message.info {
+        border-left: 4px solid #007bff;
+    }
+
+    .message-content {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #666;
+        cursor: pointer;
+        padding: 0 5px;
+        margin-left: 10px;
+    }
+
+    .close-btn:hover {
+        color: #333;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .desktop-search {
+            max-width: 400px;
         }
+    }
 
-        // Apply mobile class to body for CSS targeting
-        if (isMobileDevice()) {
-            document.body.classList.add('mobile-device');
+    @media (max-width: 768px) {
+        .desktop-search,
+        .desktop-actions .header-action span,
+        .desktop-subheader,
+        .account-dropdown {
+            display: none;
         }
-    </script>
+        
+        .mobile-menu-btn {
+            display: block;
+        }
+        
+        .header-content {
+            padding: 10px 0;
+            height: 60px;
+        }
+        
+        .logo a {
+            font-size: 20px;
+        }
+        
+        .logo-icon {
+            font-size: 24px;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+        }
+        
+        body.menu-open {
+            overflow: hidden;
+        }
+        
+        body.menu-open::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 0 10px;
+        }
+        
+        .mobile-menu {
+            width: 280px;
+        }
+    }
+    </style>
 </body>
 </html>
