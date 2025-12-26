@@ -1,0 +1,308 @@
+<nav style="background: #131921; padding: 0; color: white; font-family: Arial, sans-serif;">
+    <div class="container">
+        <div class="nav-container">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn hamburger-btn" aria-label="Menü öffnen">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="nav-logo">
+                <a href="/" style="display: flex; align-items: center; text-decoration: none;">
+                    <span style="color: white; font-size: 28px; margin-right: 5px;">🛍️</span>
+                    <span style="color: white; font-size: 20px; font-weight: bold; white-space: nowrap;">
+                        Günstiger<span style="color: #ff9900;">Gefunden</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Desktop Search -->
+            <div class="desktop-search desktop-only">
+                <form action="/search" method="GET" class="search-form">
+                    <input type="text" name="q" placeholder="Produkte suchen..."
+                           aria-label="Suchbegriff eingeben">
+                    <button type="submit" aria-label="Suchen">
+                        <span>🔍</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Side Menu -->
+            <div class="nav-right">
+                <!-- Account -->
+                <div class="nav-item">
+                    <a href="{% if session.customer_id %}/customer/profile{% else %}/customer/login{% endif %}"
+                       class="nav-link">
+                        <div style="font-size: 12px;">Hallo, {% if session.customer_name %}{{ session.customer_name|truncate(10) }}{% else %}Anmelden{% endif %}</div>
+                        <div style="font-weight: bold; font-size: 14px;">Mein Konto</div>
+                    </a>
+                </div>
+
+                <!-- Cart -->
+                <div class="nav-item">
+                    <a href="{% if session.customer_id %}/cart{% else %}/customer/login{% endif %}"
+                       class="nav-link cart-link">
+                        <div style="position: relative;">
+                            <span style="font-size: 28px;">🛒</span>
+                            {% if session.cart_count and session.cart_count|int > 0 %}
+                            <div class="cart-count"
+                                 style="position: absolute; top: -5px; right: -10px; background: #ff9900; color: white; border-radius: 50%; min-width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: bold;">
+                                {{ session.cart_count }}
+                            </div>
+                            {% else %}
+                            <div class="cart-count" style="display: none;"></div>
+                            {% endif %}
+                        </div>
+                        <div style="margin-left: 5px;">
+                            <div style="font-weight: bold; font-size: 14px;">Warenkorb</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu (hidden by default) -->
+    <div class="mobile-menu" style="display: none;">
+        <div class="mobile-menu-content">
+            <!-- Mobile Search -->
+            <div class="mobile-search-form">
+                <form action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Suchen..." aria-label="Suchen">
+                    <button type="submit">🔍</button>
+                </form>
+            </div>
+
+            <!-- Mobile Navigation Links -->
+            <div class="mobile-nav-links">
+                <a href="/" class="mobile-nav-link">
+                    <span>🏠</span> Startseite
+                </a>
+                <a href="/cart" class="mobile-nav-link">
+                    <span>🛒</span> Warenkorb
+                </a>
+                {% if session.customer_id %}
+                <a href="/customer/profile" class="mobile-nav-link">
+                    <span>👤</span> Mein Konto
+                </a>
+                <a href="/order/history" class="mobile-nav-link">
+                    <span>📦</span> Meine Bestellungen
+                </a>
+                <a href="/ticket/my-tickets" class="mobile-nav-link">
+                    <span>🎫</span> Meine Tickets
+                </a>
+                <a href="/customer/logout" class="mobile-nav-link">
+                    <span>🚪</span> Abmelden
+                </a>
+                {% else %}
+                <a href="/customer/login" class="mobile-nav-link">
+                    <span>🔐</span> Anmelden
+                </a>
+                <a href="/customer/register" class="mobile-nav-link">
+                    <span>📝</span> Registrieren
+                </a>
+                {% endif %}
+                {% if session.logged_in %}
+                <a href="/admin/dashboard" class="mobile-nav-link">
+                    <span>⚙️</span> Admin
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Categories -->
+            <div class="mobile-categories">
+                <h3>Kategorien</h3>
+                <div class="category-list">
+                    <a href="/search?q=Haushalt">🏠 Haushalt</a>
+                    <a href="/search?q=Elektronik">🔌 Elektronik</a>
+                    <a href="/search?q=Garten">🌿 Garten</a>
+                    <a href="/search?q=Sport">⚽ Sport</a>
+                    <a href="/search?q=Spielzeug">🎮 Spielzeug</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .nav-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+    }
+
+    .nav-logo {
+        flex: 0 0 auto;
+    }
+
+    .desktop-search {
+        flex: 1;
+        max-width: 600px;
+        margin: 0 20px;
+    }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nav-item {
+        position: relative;
+    }
+
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+
+    .nav-link:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .mobile-menu-content {
+        padding: 20px;
+        background: #232f3e;
+        min-height: 100vh;
+    }
+
+    .mobile-search-form {
+        margin-bottom: 20px;
+    }
+
+    .mobile-search-form form {
+        display: flex;
+    }
+
+    .mobile-search-form input {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 4px 0 0 4px;
+    }
+
+    .mobile-search-form button {
+        background: #ff9900;
+        color: white;
+        border: none;
+        padding: 0 20px;
+        border-radius: 0 4px 4px 0;
+    }
+
+    .mobile-nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .mobile-nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 15px;
+        background: #37475a;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 16px;
+    }
+
+    .mobile-nav-link:hover {
+        background: #485769;
+    }
+
+    .mobile-categories h3 {
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .category-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .category-list a {
+        color: white;
+        text-decoration: none;
+        padding: 10px;
+        background: #37475a;
+        border-radius: 6px;
+        text-align: center;
+        display: block;
+    }
+
+    .category-list a:hover {
+        background: #485769;
+    }
+
+    @media (max-width: 767px) {
+        .desktop-search {
+            display: none;
+        }
+
+        .nav-right .nav-link {
+            flex-direction: column;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .nav-right .nav-link div:first-child {
+            font-size: 10px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburgerBtn = document.querySelector('.hamburger-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        if (hamburgerBtn && mobileMenu) {
+            hamburgerBtn.addEventListener('click', function() {
+                if (mobileMenu.style.display === 'block') {
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                } else {
+                    mobileMenu.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+
+            // Close menu when clicking on a link
+            const mobileLinks = document.querySelectorAll('.mobile-nav-link, .category-list a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                });
+            });
+
+            // Close menu when clicking outside
+            mobileMenu.addEventListener('click', function(e) {
+                if (e.target === mobileMenu) {
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+    });
+</script>
