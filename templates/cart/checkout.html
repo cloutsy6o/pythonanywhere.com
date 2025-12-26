@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    {% include 'header.html' %}
+    <title>Kasse - Amazon Style</title>
+    <style>
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+        }
+        .checkout-main {
+            flex: 2;
+        }
+        .checkout-sidebar {
+            flex: 1;
+            min-width: 300px;
+        }
+        .checkout-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+        }
+        .checkout-title {
+            font-size: 28px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            color: #0f1111;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0f1111;
+        }
+        .address-section {
+            margin-bottom: 20px;
+        }
+        .address-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .manage-link {
+            font-size: 14px;
+            color: #0066c0;
+            text-decoration: none;
+        }
+        .manage-link:hover {
+            text-decoration: underline;
+            color: #c45500;
+        }
+        .address-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .address-option {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .address-option:hover {
+            border-color: #a6a6a6;
+            background: #f9f9f9;
+        }
+        .address-option.selected {
+            border-color: #e77600;
+            border-width: 2px;
+            background: #fffaf0;
+        }
+        .address-badge {
+            position: absolute;
+            top: -8px;
+            left: 20px;
+            background: #e77600;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .address-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 15px;
+            color: #0f1111;
+        }
+        .address-text {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #555;
+        }
+        .new-address-card {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: #fafafa;
+            margin-top: 10px;
+        }
+        .new-address-card:hover {
+            border-color: #a6a6a6;
+            background: #f5f5f5;
+        }
+        .plus-icon {
+            font-size: 24px;
+            color: #0066c0;
+            margin-bottom: 8px;
+        }
+        .new-address-text {
+            color: #0066c0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .new-address-desc {
+            color: #555;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .address-form {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            display: none;
+        }
+        .form-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #0f1111;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-input:focus {
+            outline: 3px solid #c8f3fa;
+            border-color: #007185;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .save-btn {
+            background: #ffd814;
+            border: 1px solid #fcd200;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .cancel-btn {
+            background: #f0f2f2;
+            border: 1px solid #d5d9d9;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .payment-method {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .payment-method:hover {
+            background: #f7f7f7;
+        }
+        .payment-method.selected {
+            border-color: #e77600;
+            box-shadow: 0 0 3px 2px rgba(228,121,17,.5);
+        }
+        .payment-icon {
+            width: 50px;
+            text-align: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        .payment-info {
+            flex: 1;
+        }
+        .payment-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .payment-desc {
+            font-size: 12px;
+            color: #555;
+            margin-top: 3px;
+        }
+        .order-summary {
+            background: #f7f7f7;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .order-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 15px;
+        }
+        .item-details {
+            flex: 1;
+        }
+        .item-title {
+            font-size: 14px;
+            color: #0066c0;
+            margin-bottom: 5px;
+        }
+        .item-price {
+            font-size: 14px;
+            color: #b12704;
+            font-weight: bold;
+        }
+        .item-quantity {
+            font-size: 13px;
+            color: #555;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        .summary-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #b12704;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        .place-order-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ffd814;
+            border: 1px solid #fcd200;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .place-order-btn:hover {
+            background: #f7ca00;
+        }
+        .place-order-btn:disabled {
+            background: #e7e9ec;
+            border-color: #a2a6ac;
+            color: #8d9096;
+            cursor: not-allowed;
+        }
+        .secure-notice {
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .secure-notice span {
+            color: #067d62;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="checkout-container">
+        <div class="checkout-main">
+            <h1 class="checkout-title">Kasse</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="checkout-box" style="border-color: {% if category == 'error' %}#dc3545{% else %}#28a745{% endif %};">
+                            <div style="color: {% if category == 'error' %}#dc3545{% else %}#28a745{% endif %};">
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Shipping Address -->
+            <div class="checkout-box">
+                <div class="section-title">1. Lieferadresse</div>
+
+                <div class="address-section">
+                    <div class="address-header">
+                        <span style="font-size: 14px; color: #555;">Wählen Sie eine Lieferadresse</span>
+                        <a href="/address/manage" class="manage-link">Adressen verwalten</a>
+                    </div>
+
+                    <!-- Saved Addresses -->
+                    <div class="address-options" id="savedAddresses">
+                        <!-- Will be populated by JavaScript -->
+                        <div style="text-align: center; padding: 20px; color: #555; font-size: 14px;">
+                            Lade gespeicherte Adressen...
+                        </div>
+                    </div>
+
+                    <!-- Add New Address Card -->
+                    <div class="new-address-card" onclick="showNewAddressForm()">
+                        <div class="plus-icon">＋</div>
+                        <div class="new-address-text">Neue Adresse hinzufügen</div>
+                        <div class="new-address-desc">Für eine neue Lieferadresse</div>
+                    </div>
+                </div>
+
+                <!-- New Address Form -->
+                <div class="address-form" id="newAddressForm">
+                    <div class="form-title">Neue Adresse hinzufügen</div>
+
+                    <div class="form-group">
+                        <label class="form-label">Vollständiger Name</label>
+                        <input type="text" class="form-input" id="full_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Straße und Hausnummer</label>
+                        <input type="text" class="form-input" id="address_line1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Adresszusatz (optional)</label>
+                        <input type="text" class="form-input" id="address_line2">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">PLZ</label>
+                            <input type="text" class="form-input" id="zip_code" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Stadt</label>
+                            <input type="text" class="form-input" id="city" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Land</label>
+                        <select class="form-input" id="country">
+                            <option value="Deutschland">Deutschland</option>
+                            <option value="Österreich">Österreich</option>
+                            <option value="Schweiz">Schweiz</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Telefon (optional)</label>
+                        <input type="text" class="form-input" id="phone">
+                    </div>
+
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="save_address" checked>
+                        <label for="save_address" class="form-label" style="margin: 0; font-weight: normal;">
+                            Diese Adresse für zukünftige Bestellungen speichern
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="save-btn" onclick="useNewAddress()">
+                            Diese Adresse verwenden
+                        </button>
+                        <button type="button" class="cancel-btn" onclick="hideNewAddressForm()">
+                            Abbrechen
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden form fields for submission -->
+                <form id="checkoutForm" action="/cart/place-order" method="POST">
+                    <input type="hidden" name="full_name" id="form_full_name">
+                    <input type="hidden" name="address" id="form_address">
+                    <input type="hidden" name="zip_code" id="form_zip_code">
+                    <input type="hidden" name="city" id="form_city">
+                    <input type="hidden" name="country" id="form_country">
+                    <input type="hidden" name="phone" id="form_phone">
+                    <input type="hidden" name="address_type" id="form_address_type" value="new">
+                    <input type="hidden" name="address_id" id="form_address_id">
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-box">
+                <h2 class="section-title">2. Zahlungsmethode</h2>
+
+                <div class="payment-method" onclick="selectPayment('paypal')" id="paypalOption">
+                    <div class="payment-icon">🔵</div>
+                    <div class="payment-info">
+                        <div class="payment-name">PayPal</div>
+                        <div class="payment-desc">Schnell und sicher bezahlen</div>
+                    </div>
+                    <input type="radio" name="payment" value="paypal" checked style="display: none;">
+                </div>
+
+                <div class="payment-method" onclick="selectPayment('credit_card')" id="creditCardOption">
+                    <div class="payment-icon">💳</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Kreditkarte</div>
+                        <div class="payment-desc">Visa, Mastercard, American Express</div>
+                    </div>
+                    <input type="radio" name="payment" value="credit_card" style="display: none;">
+                </div>
+
+                <div class="payment-method" onclick="selectPayment('bank_transfer')" id="bankTransferOption">
+                    <div class="payment-icon">🏦</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Überweisung</div>
+                        <div class="payment-desc">Klassische Banküberweisung</div>
+                    </div>
+                    <input type="radio" name="payment" value="bank_transfer" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="checkout-sidebar">
+            <div class="order-summary">
+                <h2 class="section-title">Bestellübersicht</h2>
+
+                {% for item in cart_items %}
+                <div class="order-item">
+                    <img src="/static/{{ item.bild }}"
+                         alt="{{ item.titel }}"
+                         class="item-image"
+                         onerror="this.src='/uploads/platzhalter.jpg'">
+                    <div class="item-details">
+                        <div class="item-title">{{ item.titel }}</div>
+                        <div class="item-price">{{ "%.2f"|format(item.price) }} €</div>
+                        <div class="item-quantity">Menge: {{ item.quantity }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="summary-row">
+                    <span>Zwischensumme</span>
+                    <span>{{ "%.2f"|format(total) }} €</span>
+                </div>
+                <div class="summary-row">
+                    <span>Versand</span>
+                    <span>Kostenlos</span>
+                </div>
+                <div class="summary-row">
+                    <span>Steuern</span>
+                    <span>Inklusive</span>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Gesamtsumme</span>
+                    <span>{{ "%.2f"|format(total) }} €</span>
+                </div>
+
+                <button type="button" class="place-order-btn" onclick="submitOrder()" id="placeOrderBtn" disabled>
+                    Adresse auswählen
+                </button>
+
+                <div class="secure-notice">
+                    <span>🔒 Sichere Transaktion</span> · Ihre Daten sind geschützt
+                </div>
+                </form>
+
+                <p style="margin-top: 20px; text-align: center; font-size: 13px;">
+                    <a href="/cart" style="color: #0066c0;">← Zurück zum Warenkorb</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let selectedAddress = null;
+    let addresses = [];
+
+    // Load saved addresses from server
+    function loadAddresses() {
+        fetch('/address/manage')
+            .then(response => response.text())
+            .then(html => {
+                parseAddressesFromHTML(html);
+            })
+            .catch(error => {
+                console.error('Error loading addresses:', error);
+                showNewAddressForm();
+            });
+    }
+
+    function parseAddressesFromHTML(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const addressCards = doc.querySelectorAll('.address-card');
+
+        addresses = [];
+        addressCards.forEach(card => {
+            const nameElement = card.querySelector('.address-name');
+            const textElement = card.querySelector('.address-text');
+
+            if (nameElement && textElement) {
+                const lines = textElement.textContent.split('\n').map(line => line.trim()).filter(line => line);
+
+                // Extract data from lines
+                let address_line1 = lines[0] || '';
+                let address_line2 = lines[1] || '';
+                let zip_city = lines[2] || '';
+                let country = lines[3] || 'Deutschland';
+                let phone = lines[4] ? lines[4].replace('📞 ', '') : '';
+
+                // Extract zip and city
+                let zip_code = '';
+                let city = '';
+                if (zip_city) {
+                    const parts = zip_city.split(' ');
+                    if (parts.length > 0) {
+                        zip_code = parts[0];
+                        city = parts.slice(1).join(' ');
+                    }
+                }
+
+                const address = {
+                    id: Date.now() + Math.random(), // Temporary ID
+                    full_name: nameElement.textContent.trim(),
+                    address_line1: address_line1,
+                    address_line2: address_line2,
+                    zip_code: zip_code,
+                    city: city,
+                    country: country,
+                    phone: phone,
+                    is_default: card.classList.contains('default')
+                };
+
+                addresses.push(address);
+            }
+        });
+
+        renderAddresses();
+
+        // Select default address if exists
+        const defaultAddress = addresses.find(a => a.is_default);
+        if (defaultAddress) {
+            selectAddress(defaultAddress.id);
+        } else if (addresses.length > 0) {
+            selectAddress(addresses[0].id);
+        } else {
+            showNewAddressForm();
+        }
+    }
+
+    function renderAddresses() {
+        const container = document.getElementById('savedAddresses');
+
+        if (addresses.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 30px; color: #555; font-size: 14px;">
+                    Keine gespeicherten Adressen gefunden.<br>
+                    Bitte fügen Sie eine neue Adresse hinzu.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+
+        addresses.forEach(address => {
+            const div = document.createElement('div');
+            div.className = 'address-option';
+            div.id = `address-${address.id}`;
+            div.onclick = () => selectAddress(address.id);
+
+            let addressHTML = '';
+
+            if (address.is_default) {
+                addressHTML += `<div class="address-badge">Standard</div>`;
+            }
+
+            addressHTML += `
+                <div class="address-name">${address.full_name}</div>
+                <div class="address-text">
+                    ${address.address_line1}<br>
+                    ${address.address_line2 ? address.address_line2 + '<br>' : ''}
+                    ${address.zip_code} ${address.city}<br>
+                    ${address.country}<br>
+                    ${address.phone ? '📞 ' + address.phone : ''}
+                </div>
+            `;
+
+            div.innerHTML = addressHTML;
+            container.appendChild(div);
+        });
+    }
+
+    function selectAddress(addressId) {
+        // Remove selection from all
+        document.querySelectorAll('.address-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        // Add selection to clicked
+        const option = document.getElementById(`address-${addressId}`);
+        if (option) option.classList.add('selected');
+
+        // Find address object
+        selectedAddress = addresses.find(a => a.id == addressId);
+
+        if (selectedAddress) {
+            // Update hidden form fields
+            document.getElementById('form_full_name').value = selectedAddress.full_name;
+            document.getElementById('form_address').value = selectedAddress.address_line1 + (selectedAddress.address_line2 ? ', ' + selectedAddress.address_line2 : '');
+            document.getElementById('form_zip_code').value = selectedAddress.zip_code;
+            document.getElementById('form_city').value = selectedAddress.city;
+            document.getElementById('form_country').value = selectedAddress.country;
+            document.getElementById('form_phone').value = selectedAddress.phone || '';
+            document.getElementById('form_address_type').value = 'saved';
+
+            // Enable order button
+            updateOrderButton(true);
+        }
+    }
+
+    function showNewAddressForm() {
+        document.getElementById('newAddressForm').style.display = 'block';
+        document.querySelector('.new-address-card').style.display = 'none';
+
+        // Remove selection from saved addresses
+        document.querySelectorAll('.address-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+        selectedAddress = null;
+
+        // Reset form fields
+        document.getElementById('full_name').value = '';
+        document.getElementById('address_line1').value = '';
+        document.getElementById('address_line2').value = '';
+        document.getElementById('zip_code').value = '';
+        document.getElementById('city').value = '';
+        document.getElementById('country').value = 'Deutschland';
+        document.getElementById('phone').value = '';
+
+        // Disable order button until new address is filled
+        updateOrderButton(false);
+    }
+
+    function hideNewAddressForm() {
+        document.getElementById('newAddressForm').style.display = 'none';
+        document.querySelector('.new-address-card').style.display = 'block';
+
+        // Re-select previous address if exists
+        if (selectedAddress) {
+            selectAddress(selectedAddress.id);
+        } else if (addresses.length > 0) {
+            selectAddress(addresses[0].id);
+        }
+    }
+
+    function useNewAddress() {
+        const fullName = document.getElementById('full_name').value.trim();
+        const addressLine1 = document.getElementById('address_line1').value.trim();
+        const addressLine2 = document.getElementById('address_line2').value.trim();
+        const zipCode = document.getElementById('zip_code').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const country = document.getElementById('country').value;
+        const phone = document.getElementById('phone').value.trim();
+        const saveAddress = document.getElementById('save_address').checked;
+
+        // Validation
+        if (!fullName || !addressLine1 || !zipCode || !city) {
+            alert('Bitte füllen Sie alle erforderlichen Felder aus (Name, Straße, PLZ, Stadt).');
+            return;
+        }
+
+        // Update hidden form fields
+        document.getElementById('form_full_name').value = fullName;
+        document.getElementById('form_address').value = addressLine1 + (addressLine2 ? ', ' + addressLine2 : '');
+        document.getElementById('form_zip_code').value = zipCode;
+        document.getElementById('form_city').value = city;
+        document.getElementById('form_country').value = country;
+        document.getElementById('form_phone').value = phone;
+        document.getElementById('form_address_type').value = 'new';
+
+        // Save address to database if checkbox checked
+        if (saveAddress) {
+            const addressData = {
+                full_name: fullName,
+                address_line1: addressLine1,
+                address_line2: addressLine2,
+                zip_code: zipCode,
+                city: city,
+                country: country,
+                phone: phone,
+                is_default: addresses.length === 0
+            };
+
+            fetch('/address/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(addressData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Reload addresses to include new one
+                    loadAddresses();
+                }
+            })
+            .catch(error => console.error('Error saving address:', error));
+        }
+
+        // Hide form and show success
+        hideNewAddressForm();
+        updateOrderButton(true);
+
+        // Show temporary success message
+        const message = document.createElement('div');
+        message.style.cssText = 'background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-top: 10px; font-size: 14px;';
+        message.textContent = 'Neue Adresse für diese Bestellung gespeichert.';
+        document.getElementById('newAddressForm').parentNode.insertBefore(message, document.getElementById('newAddressForm'));
+        setTimeout(() => message.remove(), 3000);
+    }
+
+    function updateOrderButton(enabled) {
+        const btn = document.getElementById('placeOrderBtn');
+        btn.disabled = !enabled;
+        if (enabled) {
+            btn.textContent = `✅ Jetzt bestellen ({{ "%.2f"|format(total) }} €)`;
+        } else {
+            btn.textContent = 'Adresse auswählen';
+        }
+    }
+
+    function selectPayment(method) {
+        document.querySelectorAll('.payment-method').forEach(el => {
+            el.classList.remove('selected');
+            el.querySelector('input[type="radio"]').checked = false;
+        });
+
+        const option = document.getElementById(method + 'Option');
+        option.classList.add('selected');
+        option.querySelector('input[type="radio"]').checked = true;
+    }
+
+    function submitOrder() {
+        // Check if address is selected or new address is being used
+        const hasSelectedAddress = selectedAddress !== null;
+        const hasNewAddress = document.getElementById('full_name').value.trim() !== '';
+
+        if (!hasSelectedAddress && !hasNewAddress) {
+            alert('Bitte wählen Sie eine Lieferadresse aus oder geben Sie eine neue ein.');
+            return;
+        }
+
+        // If using new address, make sure it's filled
+        if (!hasSelectedAddress && hasNewAddress) {
+            const fullName = document.getElementById('full_name').value.trim();
+            const addressLine1 = document.getElementById('address_line1').value.trim();
+            const zipCode = document.getElementById('zip_code').value.trim();
+            const city = document.getElementById('city').value.trim();
+
+            if (!fullName || !addressLine1 || !zipCode || !city) {
+                alert('Bitte füllen Sie alle erforderlichen Felder für die neue Adresse aus (Name, Straße, PLZ, Stadt).');
+                return;
+            }
+
+            // Ensure new address data is copied to hidden fields
+            document.getElementById('form_full_name').value = fullName;
+            document.getElementById('form_address').value = addressLine1 + (document.getElementById('address_line2').value.trim() ? ', ' + document.getElementById('address_line2').value.trim() : '');
+            document.getElementById('form_zip_code').value = zipCode;
+            document.getElementById('form_city').value = city;
+            document.getElementById('form_country').value = document.getElementById('country').value;
+            document.getElementById('form_phone').value = document.getElementById('phone').value.trim();
+            document.getElementById('form_address_type').value = 'new';
+        }
+
+        // Submit form
+        document.getElementById('checkoutForm').submit();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        selectPayment('paypal');
+        loadAddresses();
+    });
+    </script>
+</body>
+</html>
