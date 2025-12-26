@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Bestellungen - Günstiger Gefunden</title>
+    <style>
+        /* Amazon Mobile Header */
+        .amazon-mobile-header {
+            background: #131921;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0 0 5px 0;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            height: 50px;
+        }
+
+        .mobile-logo {
+            flex: 1;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+        }
+
+        .amazon-logo {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: -1px;
+            display: inline-block;
+        }
+
+        .logo-highlight {
+            color: #ff9900;
+        }
+
+        .mobile-cart {
+            margin-left: 15px;
+        }
+
+        .cart-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff9900;
+            color: #111;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Desktop Header */
+        .desktop-header {
+            display: none;
+            background: #131921;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .desktop-header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .desktop-logo {
+            flex-shrink: 0;
+        }
+
+        .desktop-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+        }
+
+        .desktop-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .desktop-nav-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Mobile Side Menu */
+        .mobile-side-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 15px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: normal;
+            color: #0f1111;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            color: #565959;
+            font-size: 14px;
+        }
+
+        /* Orders Table */
+        .orders-table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .orders-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Order Card for Mobile */
+        .order-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #e7e7e7;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .order-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f1111;
+        }
+
+        .order-date {
+            color: #565959;
+            font-size: 14px;
+        }
+
+        .order-details {
+            display: grid;
+            gap: 12px;
+        }
+
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-detail-label {
+            color: #565959;
+            font-size: 14px;
+        }
+
+        .order-detail-value {
+            font-weight: 600;
+            color: #0f1111;
+        }
+
+        .order-total {
+            font-size: 18px;
+            color: #b12704;
+            font-weight: bold;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background: #ffc107;
+            color: black;
+        }
+
+        .status-processing {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .status-shipped {
+            background: #007bff;
+            color: white;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #ffd814;
+            border-color: #fcd200;
+            color: #0f1111;
+        }
+
+        .btn-primary:hover {
+            background: #f7ca00;
+        }
+
+        .btn-outline {
+            background: white;
+            border-color: #d5d9d9;
+            color: #0f1111;
+        }
+
+        .btn-outline:hover {
+            background: #f7f7f7;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #767676;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0066c0;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+            color: #c45500;
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .orders-table {
+                display: none;
+            }
+
+            .order-cards-container {
+                display: block;
+            }
+
+            .desktop-header {
+                display: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .order-cards-container {
+                display: none;
+            }
+
+            .desktop-header {
+                display: block;
+            }
+
+            .amazon-mobile-header {
+                display: none;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="amazon-mobile-header">
+        <div class="header-top-row">
+            <!-- Hamburger Menu -->
+            <button class="hamburger-btn" id="mobileHamburger" aria-label="Menü öffnen">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="mobile-logo">
+                <a href="/" class="logo-link">
+                    <span class="amazon-logo">günstiger<span class="logo-highlight">gefunden</span></span>
+                </a>
+            </div>
+
+            <!-- Cart -->
+            <div class="mobile-cart">
+                <a href="{% if session.customer_id %}/cart{% else %}/customer/login{% endif %}" class="cart-btn">
+                    <span>🛒</span>
+                    {% if session.cart_count and session.cart_count|int > 0 %}
+                    <span class="cart-badge">{{ session.cart_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Desktop Header -->
+    <header class="desktop-header">
+        <div class="desktop-header-content">
+            <!-- Hamburger Menu -->
+            <button class="hamburger-btn" id="desktopHamburger" aria-label="Menü öffnen">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="desktop-logo">
+                <a href="/" style="text-decoration: none; color: white;">
+                    <span style="font-size: 24px; font-weight: bold;">
+                        günstiger<span style="color: #ff9900;">gefunden</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Right Navigation -->
+            <div class="desktop-nav-right">
+                {% if session.customer_id %}
+                <a href="/customer/profile" class="desktop-nav-link">
+                    <div style="font-size: 12px;">Hallo,</div>
+                    <div style="font-weight: bold;">Mein Konto</div>
+                </a>
+                {% else %}
+                <a href="/customer/login" class="desktop-nav-link">
+                    <div style="font-size: 12px;">Hallo,</div>
+                    <div style="font-weight: bold;">Anmelden</div>
+                </a>
+                {% endif %}
+
+                <a href="{% if session.customer_id %}/cart{% else %}/customer/login{% endif %}" class="desktop-nav-link">
+                    <div style="position: relative;">
+                        <span style="font-size: 24px;">🛒</span>
+                        {% if session.cart_count and session.cart_count|int > 0 %}
+                        <div style="position: absolute; top: -5px; right: -10px; background: #ff9900; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center;">
+                            {{ session.cart_count }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div style="font-weight: bold;">Warenkorb</div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Side Menu -->
+    <div class="mobile-side-menu" id="mobileSideMenu">
+        <div style="width: 80%; max-width: 300px; height: 100%; background: white; overflow-y: auto;">
+            <!-- Menu Header -->
+            <div style="background: #232f3e; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">Menü</h3>
+                <button id="closeMenu" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+
+            <!-- Menu Content -->
+            <div style="padding: 20px;">
+                <!-- Account Section -->
+                <div style="margin-bottom: 20px;">
+                    {% if session.customer_id %}
+                    <a href="/customer/profile" style="display: block; padding: 10px; background: #f0f2f2; border-radius: 4px; text-decoration: none; color: #333;">
+                        👤 Mein Konto
+                    </a>
+                    {% else %}
+                    <a href="/customer/login" style="display: block; padding: 10px; background: #f0f2f2; border-radius: 4px; text-decoration: none; color: #333;">
+                        👤 Anmelden
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Navigation Links -->
+                <div style="display: grid; gap: 10px; margin-bottom: 20px;">
+                    <a href="/" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🏠</span> Startseite
+                    </a>
+                    <a href="/cart" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🛒</span> Warenkorb
+                    </a>
+                    <a href="/order/history" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px; background: #f0f2f2;">
+                        <span>📦</span> Meine Bestellungen
+                    </a>
+                    <a href="/ticket/my-tickets" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🎫</span> Meine Tickets
+                    </a>
+                </div>
+
+                <!-- Categories -->
+                <h4 style="margin-bottom: 10px;">Kategorien</h4>
+                <div style="display: grid; gap: 8px;">
+                    <a href="/search?q=Haushalt" style="padding: 8px; text-decoration: none; color: #0066c0;">🏠 Haushalt</a>
+                    <a href="/search?q=Elektronik" style="padding: 8px; text-decoration: none; color: #0066c0;">🔌 Elektronik</a>
+                    <a href="/search?q=Garten" style="padding: 8px; text-decoration: none; color: #0066c0;">🌿 Garten</a>
+                    <a href="/search?q=Sport" style="padding: 8px; text-decoration: none; color: #0066c0;">⚽ Sport</a>
+                    <a href="/search?q=Spielzeug" style="padding: 8px; text-decoration: none; color: #0066c0;">🎮 Spielzeug</a>
+                </div>
+
+                <!-- Logout -->
+                {% if session.customer_id %}
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e7e7e7;">
+                    <a href="/customer/logout" style="display: block; padding: 10px; text-decoration: none; color: #0066c0;">
+                        🚪 Abmelden
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <a href="/" class="back-button">
+            ← Zurück zur Startseite
+        </a>
+
+        <div class="page-header">
+            <h1 class="page-title">Meine Bestellungen</h1>
+            <p class="page-subtitle">Hier finden Sie eine Übersicht aller Ihrer Bestellungen.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if orders %}
+            <!-- Desktop Table -->
+            <div class="orders-table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Bestellnummer</th>
+                            <th>Datum</th>
+                            <th>Artikel</th>
+                            <th>Gesamtbetrag</th>
+                            <th>Status</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <strong>#{{ order.id }}</strong>
+                            </td>
+                            <td>
+                                {{ order.order_date.strftime('%d.%m.%Y') }}
+                                <div style="font-size: 12px; color: #767676;">
+                                    {{ order.order_date.strftime('%H:%M') }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ order.item_count }} Artikel
+                            </td>
+                            <td>
+                                <strong style="color: #b12704;">{{ "%.2f"|format(order.total_amount) }} €</strong>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ order.status }}">
+                                    {% if order.status == 'completed' %}Abgeschlossen
+                                    {% elif order.status == 'shipped' %}Versandt
+                                    {% elif order.status == 'processing' %}In Bearbeitung
+                                    {% elif order.status == 'pending' %}Ausstehend
+                                    {% elif order.status == 'cancelled' %}Storniert
+                                    {% else %}{{ order.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/order/{{ order.id }}" class="btn btn-outline">
+                                    Details ansehen
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="order-cards-container">
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <div>
+                            <div class="order-number">Bestellung #{{ order.id }}</div>
+                            <div class="order-date">{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</div>
+                        </div>
+                        <span class="status-badge status-{{ order.status }}">
+                            {% if order.status == 'completed' %}Abgeschlossen
+                            {% elif order.status == 'shipped' %}Versandt
+                            {% elif order.status == 'processing' %}In Bearbeitung
+                            {% elif order.status == 'pending' %}Ausstehend
+                            {% elif order.status == 'cancelled' %}Storniert
+                            {% else %}{{ order.status }}{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="order-details">
+                        <div class="order-detail-row">
+                            <span class="order-detail-label">Artikel:</span>
+                            <span class="order-detail-value">{{ order.item_count }} Stück</span>
+                        </div>
+
+                        <div class="order-detail-row">
+                            <span class="order-detail-label">Gesamtbetrag:</span>
+                            <span class="order-total">{{ "%.2f"|format(order.total_amount) }} €</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="/order/{{ order.id }}" class="btn btn-primary">
+                            Bestelldetails
+                        </a>
+                        {% if order.status == 'shipped' %}
+                        <button class="btn btn-outline" onclick="trackOrder({{ order.id }})">
+                            📦 Verfolgen
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📦</div>
+                <h3>Noch keine Bestellungen</h3>
+                <p>Sie haben noch keine Bestellungen aufgegeben.</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 20px;">
+                    Jetzt einkaufen
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Help Section -->
+        <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="margin-bottom: 15px;">Hilfe & Support</h3>
+            <div style="display: grid; gap: 10px;">
+                <a href="/ticket/create" style="color: #0066c0; text-decoration: none;">
+                    📝 Support-Ticket erstellen
+                </a>
+                <a href="/ticket/my-tickets" style="color: #0066c0; text-decoration: none;">
+                    🎫 Meine Support-Tickets
+                </a>
+                <div style="margin-top: 10px; font-size: 14px; color: #565959;">
+                    Fragen zu Ihrer Bestellung? Unser Support-Team hilft Ihnen gerne weiter.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu functionality
+        const mobileHamburger = document.getElementById('mobileHamburger');
+        const desktopHamburger = document.getElementById('desktopHamburger');
+        const closeMenu = document.getElementById('closeMenu');
+        const mobileSideMenu = document.getElementById('mobileSideMenu');
+
+        function openMenu() {
+            mobileSideMenu.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenuFunc() {
+            mobileSideMenu.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        if (mobileHamburger) {
+            mobileHamburger.addEventListener('click', openMenu);
+        }
+
+        if (desktopHamburger) {
+            desktopHamburger.addEventListener('click', openMenu);
+        }
+
+        if (closeMenu) {
+            closeMenu.addEventListener('click', closeMenuFunc);
+        }
+
+        // Close menu when clicking outside
+        mobileSideMenu.addEventListener('click', function(e) {
+            if (e.target === mobileSideMenu) {
+                closeMenuFunc();
+            }
+        });
+
+        // Track order function
+        function trackOrder(orderId) {
+            alert('Sendungsverfolgung für Bestellung #' + orderId + ' wird geladen...');
+            // In a real implementation, you would redirect to tracking page
+        }
+
+        // Update cart count
+        function updateCartCount() {
+            fetch('/cart/api/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartBadges = document.querySelectorAll('.cart-badge');
+                    cartBadges.forEach(badge => {
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    });
+                });
+        }
+
+        // Initial update
+        updateCartCount();
+
+        // Update every 30 seconds
+        setInterval(updateCartCount, 30000);
+    </script>
+</body>
+</html>
