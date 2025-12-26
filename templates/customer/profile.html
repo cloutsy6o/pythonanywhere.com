@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Profil</title>
+    <style>
+        .container { max-width: 600px; margin: 50px auto; padding: 20px; }
+        .profile-info { background: #f8f9fa; padding: 20px; border-radius: 5px; }
+        .info-item { margin: 10px 0; }
+        .label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Mein Profil</h2>
+        <p><a href="/">← Zurück zur Startseite</a></p>
+
+        <div class="profile-info">
+            <div class="info-item">
+                <span class="label">Name:</span>
+                {{ customer.first_name }} {{ customer.last_name }}
+            </div>
+            <div class="info-item">
+                <span class="label">E-Mail:</span>
+                {{ customer.email }}
+            </div>
+            <div class="info-item">
+                <span class="label">Registriert seit:</span>
+                {{ customer.created_at.strftime('%d.%m.%Y') if customer.created_at else 'N/A' }}
+            </div>
+            <div class="info-item">
+                <span class="label">Letzter Login:</span>
+                {{ customer.last_login.strftime('%d.%m.%Y %H:%M') if customer.last_login else 'N/A' }}
+            </div>
+            {% if customer.address %}
+            <div class="info-item">
+                <span class="label">Adresse:</span>
+                {{ customer.address }}, {{ customer.zip_code }} {{ customer.city }}, {{ customer.country }}
+            </div>
+            {% endif %}
+            {% if customer.phone %}
+            <div class="info-item">
+                <span class="label">Telefon:</span>
+                {{ customer.phone }}
+            </div>
+            {% endif %}
+        </div>
+
+        <p style="margin-top: 20px;">
+            <a href="{{ url_for('customer.logout') }}">Abmelden</a>
+        </p>
+    </div>
+</body>
+</html>
