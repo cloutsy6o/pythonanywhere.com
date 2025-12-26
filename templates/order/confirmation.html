@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    {% include 'header.html' %}
+    <title>Bestellbestätigung</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="inhalt-wrapper">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h1>✅ Bestellung erfolgreich!</h1>
+
+        {% if order %}
+        <div style="background: #f0f8ff; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h2>Bestellnummer: #{{ order.id }}</h2>
+            <p><strong>Bestelldatum:</strong> {{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</p>
+            <p><strong>Status:</strong> <span style="background: #ffd700; padding: 3px 8px; border-radius: 3px;">{{ order.status }}</span></p>
+            <p><strong>Gesamtbetrag:</strong> <span style="font-size: 24px; font-weight: bold; color: #b12704;">{{ "%.2f"|format(order.total_amount) }} €</span></p>
+        </div>
+
+        <h3>Bestellte Artikel:</h3>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+                <tr style="background: #f5f5f5;">
+                    <th style="padding: 10px; text-align: left;">Produkt</th>
+                    <th style="padding: 10px; text-align: left;">Menge</th>
+                    <th style="padding: 10px; text-align: left;">Preis</th>
+                    <th style="padding: 10px; text-align: left;">Gesamt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px;">{{ item.titel }}</td>
+                    <td style="padding: 10px;">{{ item.quantity }}</td>
+                    <td style="padding: 10px;">{{ "%.2f"|format(item.price) }} €</td>
+                    <td style="padding: 10px;">{{ "%.2f"|format(item.price * item.quantity) }} €</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3>Lieferadresse:</h3>
+            <pre style="white-space: pre-wrap; font-family: inherit;">{{ order.shipping_address }}</pre>
+        </div>
+
+        <p style="margin-top: 30px;">
+            <a href="/" style="background: #f0c14b; padding: 10px 20px; text-decoration: none; color: #111; font-weight: bold;">← Weiter einkaufen</a>
+        </p>
+        {% endif %}
+    </div>
+</body>
+</html>
