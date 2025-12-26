@@ -1,0 +1,159 @@
+<header class="mobile-header">
+    <!-- Top Bar -->
+    <div class="mobile-header-top">
+        <!-- Hamburger Menu Button -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+
+        <!-- Logo -->
+        <div class="mobile-logo">
+            <a href="/" class="logo-link">
+                <img src="{{ url_for('static', filename='img/logo-mobile.png') }}" alt="MyDomain" class="mobile-logo-img">
+            </a>
+        </div>
+
+        <!-- User & Cart -->
+        <div class="mobile-actions">
+            {% if current_user.is_authenticated %}
+            <div class="mobile-user-info" id="mobileUserInfo">
+                <div class="user-initials" title="{{ current_user.full_name }}">
+                    {{ current_user.full_name[:1]|upper }}
+                </div>
+                <div class="user-name-truncated" title="{{ current_user.full_name }}">
+                    <span class="truncated-name">{{ current_user.full_name|truncate(12, true, '…') }}</span>
+                </div>
+            </div>
+            {% else %}
+            <a href="/login" class="mobile-signin">
+                <i class="fas fa-user"></i>
+            </a>
+            {% endif %}
+
+            <a href="/cart" class="mobile-cart">
+                <i class="fas fa-shopping-cart"></i>
+                {% if cart_count and cart_count > 0 %}
+                <span class="mobile-cart-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mobile-search-container">
+        <form action="/search" method="GET" class="mobile-search-form" role="search">
+            <div class="mobile-search-wrapper">
+                <input type="text"
+                       name="q"
+                       class="mobile-search-input"
+                       placeholder="Search MyDomain..."
+                       aria-label="Search"
+                       value="{{ request.args.get('q', '') }}">
+                <button type="submit" class="mobile-search-button" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenu" aria-hidden="true">
+        <div class="mobile-menu-header">
+            <div class="menu-user-section">
+                {% if current_user.is_authenticated %}
+                <div class="menu-user-profile">
+                    <div class="menu-user-avatar">
+                        {{ current_user.full_name[:1]|upper }}
+                    </div>
+                    <div class="menu-user-details">
+                        <h3 class="menu-username">{{ current_user.full_name }}</h3>
+                        <p class="menu-user-email">{{ current_user.email|truncate(20) }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="menu-auth-prompt">
+                    <p>Sign in for better experience</p>
+                    <a href="/login" class="btn btn-primary btn-block">Sign In</a>
+                    <a href="/register" class="btn btn-outline btn-block">Register</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <button class="menu-close-btn" id="mobileMenuClose" aria-label="Close menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <nav class="mobile-nav" role="navigation">
+            <div class="nav-section">
+                <h4 class="nav-section-title">Shop by Category</h4>
+                {% for category in categories %}
+                <a href="/category/{{ category.slug }}" class="mobile-nav-item">
+                    <i class="{{ category.icon_class }}"></i>
+                    <span>{{ category.name }}</span>
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="nav-section">
+                <h4 class="nav-section-title">Your Account</h4>
+                <a href="/account" class="mobile-nav-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Your Account</span>
+                </a>
+                <a href="/orders" class="mobile-nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Your Orders</span>
+                </a>
+                <a href="/wishlist" class="mobile-nav-item">
+                    <i class="fas fa-heart"></i>
+                    <span>Your Wishlist</span>
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="/logout" class="mobile-nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sign Out</span>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="nav-section">
+                <h4 class="nav-section-title">Shop</h4>
+                <a href="/deals" class="mobile-nav-item">
+                    <i class="fas fa-tag"></i>
+                    <span>Today's Deals</span>
+                </a>
+                <a href="/basics" class="mobile-nav-item">
+                    <i class="fas fa-star"></i>
+                    <span>Basics</span>
+                </a>
+                <a href="/livestreams" class="mobile-nav-item">
+                    <i class="fas fa-video"></i>
+                    <span>Livestreams</span>
+                </a>
+                <a href="/video" class="mobile-nav-item">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Video</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <h4 class="nav-section-title">Help & Settings</h4>
+                <a href="/help" class="mobile-nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Customer Service</span>
+                </a>
+                <a href="/contact" class="mobile-nav-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+                <a href="/settings" class="mobile-nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</header>
