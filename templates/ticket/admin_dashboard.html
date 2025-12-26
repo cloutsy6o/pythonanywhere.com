@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Ticket Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            border-top: 4px solid;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stat-card.open { border-color: #dc3545; }
+        .stat-card.in-progress { border-color: #007bff; }
+        .stat-card.waiting { border-color: #ffc107; }
+        .stat-card.urgent { border-color: #dc3545; }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #232f3e;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .filter-group { flex: 1; min-width: 200px; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 13px;
+        }
+        select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #a6a6a6;
+            border-radius: 3px;
+            font-size: 13px;
+            height: 35px;
+        }
+        .filter-btn {
+            background: #ff9900;
+            color: black;
+            border: none;
+            padding: 0 20px;
+            height: 35px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .filter-btn:hover { background: #e68a00; }
+        .clear-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: 1px solid #d5d9d9;
+            padding: 0 20px;
+            height: 35px;
+            border-radius: 3px;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .clear-btn:hover { background: #e7e7e7; }
+
+        /* Tickets table */
+        .tickets-table {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* Priority badges */
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .priority-low { background: #28a745; color: white; }
+        .priority-medium { background: #ffc107; color: black; }
+        .priority-high { background: #fd7e14; color: white; }
+        .priority-urgent { background: #dc3545; color: white; }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-open { background: #dc3545; color: white; }
+        .status-in_progress { background: #007bff; color: white; }
+        .status-waiting_customer { background: #ffc107; color: black; }
+        .status-resolved { background: #28a745; color: white; }
+        .status-closed { background: #6c757d; color: white; }
+
+        /* Action buttons */
+        .action-btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .btn-view {
+            background: #007bff;
+            color: white;
+            border: 1px solid #006fe6;
+        }
+        .btn-view:hover { background: #006fe6; }
+
+        /* Time info */
+        .time-info {
+            font-size: 12px;
+            color: #767676;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #555;
+            text-decoration: none;
+            border-radius: 3px;
+            border: 1px solid #d5d9d9;
+            font-size: 14px;
+        }
+        .nav-btn:hover {
+            background: #e7e7e7;
+        }
+        .nav-btn.primary {
+            background: #ff9900;
+            color: black;
+            border-color: #e68a00;
+            font-weight: bold;
+        }
+        .nav-btn.primary:hover {
+            background: #e68a00;
+        }
+
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #767676;
+        }
+    </style>
+</head>
+<body>
+    {% include 'admin_header.html' %}
+
+    <div class="container">
+        <div class="header">
+            <h1>🎫 Ticket Dashboard</h1>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card open">
+                <div class="stat-number">{{ stats.open or 0 }}</div>
+                <div class="stat-label">Offene Tickets</div>
+            </div>
+            <div class="stat-card in-progress">
+                <div class="stat-number">{{ stats.in_progress or 0 }}</div>
+                <div class="stat-label">In Bearbeitung</div>
+            </div>
+            <div class="stat-card waiting">
+                <div class="stat-number">{{ stats.waiting or 0 }}</div>
+                <div class="stat-label">Warten auf Kunde</div>
+            </div>
+            <div class="stat-card urgent">
+                <div class="stat-number">{{ stats.urgent or 0 }}</div>
+                <div class="stat-label">Dringende Tickets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total or 0 }}</div>
+                <div class="stat-label">Aktive Tickets gesamt</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <form method="GET" action="/ticket/admin/dashboard" style="display: contents;">
+                <div class="filter-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="">Alle aktiven Tickets</option>
+                        <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Offen</option>
+                        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Bearbeitung</option>
+                        <option value="waiting_customer" {% if status_filter == 'waiting_customer' %}selected{% endif %}>Warten auf Kunde</option>
+                        <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Gelöst</option>
+                        <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Geschlossen</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="priority">Priorität</label>
+                    <select id="priority" name="priority">
+                        <option value="">Alle Prioritäten</option>
+                        <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %}>Dringend</option>
+                        <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>Hoch</option>
+                        <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Normal</option>
+                        <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Niedrig</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="category">Kategorie</label>
+                    <select id="category" name="category">
+                        <option value="">Alle Kategorien</option>
+                        <option value="order" {% if category_filter == 'order' %}selected{% endif %}>Bestellproblem</option>
+                        <option value="product" {% if category_filter == 'product' %}selected{% endif %}>Produktfrage</option>
+                        <option value="payment" {% if category_filter == 'payment' %}selected{% endif %}>Zahlungsproblem</option>
+                        <option value="shipping" {% if category_filter == 'shipping' %}selected{% endif %}>Lieferung</option>
+                        <option value="account" {% if category_filter == 'account' %}selected{% endif %}>Konto</option>
+                        <option value="other" {% if category_filter == 'other' %}selected{% endif %}>Sonstiges</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="filter-btn">Filtern</button>
+                <a href="/ticket/admin/dashboard" class="clear-btn">Zurücksetzen</a>
+            </form>
+        </div>
+
+        <!-- Tickets Table -->
+        <div class="tickets-table">
+            {% if tickets %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket-Nr</th>
+                        <th>Kunde</th>
+                        <th>Betreff</th>
+                        <th>Priorität</th>
+                        <th>Status</th>
+                        <th>Erstellt</th>
+                        <th>Letzte Aktivität</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><strong>{{ ticket.ticket_number }}</strong></td>
+                        <td>
+                            {{ ticket.customer_name }}
+                            <div class="time-info">{{ ticket.customer_email }}</div>
+                        </td>
+                        <td>
+                            {{ ticket.subject }}
+                            {% if ticket.order_id %}
+                            <div class="time-info">Bestellung #{{ ticket.order_id }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="priority-badge priority-{{ ticket.priority }}">
+                                {% if ticket.priority == 'low' %}Niedrig
+                                {% elif ticket.priority == 'medium' %}Normal
+                                {% elif ticket.priority == 'high' %}Hoch
+                                {% elif ticket.priority == 'urgent' %}Dringend
+                                {% else %}{{ ticket.priority }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ ticket.status }}">
+                                {% if ticket.status == 'open' %}Offen
+                                {% elif ticket.status == 'in_progress' %}In Bearbeitung
+                                {% elif ticket.status == 'waiting_customer' %}Warten auf Kunde
+                                {% elif ticket.status == 'resolved' %}Gelöst
+                                {% elif ticket.status == 'closed' %}Geschlossen
+                                {% else %}{{ ticket.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {{ ticket.created_at.strftime('%d.%m.%Y') }}
+                            <div class="time-info">{{ ticket.created_at.strftime('%H:%M') }}</div>
+                        </td>
+                        <td>
+                            {% if ticket.last_activity %}
+                                {{ ticket.last_activity.strftime('%d.%m.%Y %H:%M') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/ticket/admin/ticket/{{ ticket.ticket_number }}"
+                               class="action-btn btn-view">Ansehen</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-results">
+                <h3>Keine Tickets gefunden</h3>
+                <p>{% if status_filter or priority_filter or category_filter %}
+                    Versuchen Sie Ihre Filterkriterien zu ändern.
+                {% else %}
+                    Es sind noch keine Tickets vorhanden.
+                {% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="/admin/panel" class="nav-btn">← Zurück zum Admin Panel</a>
+            <a href="/admin/dashboard" class="nav-btn primary">📊 Zum Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
