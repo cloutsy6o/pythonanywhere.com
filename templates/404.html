@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Seite nicht gefunden - Günstiger Gefunden{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div style="font-size: 80px; margin-bottom: 20px;">🔍</div>
+    <h1>404 - Seite nicht gefunden</h1>
+    <p class="lead mb-4">Die von Ihnen gesuchte Seite existiert nicht oder wurde verschoben.</p>
+
+    <div class="suggestions mb-4">
+        <p>Vielleicht können Ihnen diese Seiten weiterhelfen:</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="/" class="btn btn-primary">Zur Startseite</a>
+            <a href="/search" class="btn btn-outline-primary">Zur Suche</a>
+            <a href="/cart" class="btn btn-outline-primary">Zum Warenkorb</a>
+        </div>
+    </div>
+
+    <!-- Popular products -->
+    <div class="popular-products mt-5">
+        <h2 class="mb-4">Beliebte Produkte</h2>
+        <div class="grid grid-sm-1 grid-md-2 grid-lg-3">
+            <!-- These would be actual popular products from your database -->
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="/static/uploads/platzhalter.jpg" alt="Produkt" loading="lazy">
+                </div>
+                <div class="product-info">
+                    <h4>Top Produkt 1</h4>
+                    <div class="best-price">19,99 €</div>
+                    <a href="/" class="btn btn-sm btn-primary w-100">Ansehen</a>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="/static/uploads/platzhalter.jpg" alt="Produkt" loading="lazy">
+                </div>
+                <div class="product-info">
+                    <h4>Top Produkt 2</h4>
+                    <div class="best-price">24,99 €</div>
+                    <a href="/" class="btn btn-sm btn-primary w-100">Ansehen</a>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="/static/uploads/platzhalter.jpg" alt="Produkt" loading="lazy">
+                </div>
+                <div class="product-info">
+                    <h4>Top Produkt 3</h4>
+                    <div class="best-price">14,99 €</div>
+                    <a href="/" class="btn btn-sm btn-primary w-100">Ansehen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
