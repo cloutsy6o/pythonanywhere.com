@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Ihr Ticket #{{ ticket.ticket_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .ticket-meta { font-size: 14px; color: #ccc; margin-top: 5px; }
+
+        /* Status bar */
+        .status-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-open { background: #dc3545; color: white; }
+        .status-in_progress { background: #007bff; color: white; }
+        .status-waiting_customer { background: #ffc107; color: black; }
+        .status-resolved { background: #28a745; color: white; }
+        .status-closed { background: #6c757d; color: white; }
+
+        /* Chat area */
+        .ticket-chat {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Messages */
+        .message {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .message.customer {
+            background: #e3f2fd;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .message.admin {
+            background: #f1f3f4;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .message-sender {
+            font-weight: bold;
+            color: #232f3e;
+        }
+        .message-time {
+            color: #767676;
+        }
+        .message-text {
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* File Attachments */
+        .attachments {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+        .attachments-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #d5d9d9;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #0066c0;
+            font-size: 13px;
+            transition: all 0.2s;
+            max-width: 250px;
+        }
+        .attachment-item:hover {
+            background: #f0f0f0;
+            border-color: #a6a6a6;
+        }
+        .attachment-icon {
+            font-size: 16px;
+        }
+        .attachment-info {
+            flex: 1;
+            overflow: hidden;
+        }
+        .attachment-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+        .attachment-size {
+            font-size: 11px;
+            color: #767676;
+        }
+
+        /* Reply form */
+        .reply-form {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .reply-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 100px;
+            resize: vertical;
+            margin-bottom: 15px;
+            font-family: Arial, sans-serif;
+        }
+        .reply-form textarea:focus {
+            border-color: #ff9900;
+            box-shadow: 0 0 3px #ff9900;
+            outline: none;
+        }
+
+        /* File upload in reply */
+        .file-upload-area {
+            border: 2px dashed #d5d9d9;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+        }
+        .file-upload-area:hover {
+            border-color: #ff9900;
+            background: #fff8e6;
+        }
+        .file-upload-area.dragover {
+            border-color: #ff9900;
+            background: #fff8e6;
+            border-style: solid;
+        }
+        .file-upload-icon {
+            font-size: 32px;
+            color: #767676;
+            margin-bottom: 8px;
+        }
+        .file-upload-text {
+            font-weight: bold;
+            color: #555;
+            margin: 5px 0;
+        }
+        .file-upload-subtext {
+            font-size: 12px;
+            color: #767676;
+        }
+        .file-list {
+            margin-bottom: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e7e7e7;
+            border-radius: 3px;
+            padding: 10px;
+            background: #f9f9f9;
+            display: none;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+        }
+        .file-item:last-child { border-bottom: none; }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .file-icon {
+            font-size: 14px;
+            color: #555;
+        }
+        .file-name {
+            color: #0066c0;
+            word-break: break-all;
+        }
+        .file-size {
+            color: #767676;
+            font-size: 10px;
+        }
+        .file-remove {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 12px;
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .file-remove:hover {
+            background: #f8d7da;
+        }
+
+        .submit-btn {
+            background: #ff9900;
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-btn:hover { background: #e68a00; }
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #555;
+            text-decoration: none;
+            border-radius: 3px;
+            border: 1px solid #d5d9d9;
+            font-size: 14px;
+        }
+        .nav-btn:hover { background: #e7e7e7; }
+        .nav-btn.primary {
+            background: #0066c0;
+            color: white;
+            border-color: #0056a3;
+        }
+        .nav-btn.primary:hover { background: #0056a3; }
+
+        /* Alert */
+        .alert {
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Ihr Ticket #{{ ticket.ticket_number }}</h1>
+            <div class="ticket-meta">
+                Erstellt am {{ ticket.created_at.strftime('%d.%m.%Y um %H:%M') }}
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-bar">
+            <div>
+                <strong>Betreff:</strong> {{ ticket.subject }}
+                {% if ticket.order_id %}
+                <div style="font-size: 13px; color: #555; margin-top: 5px;">
+                    Bestellnummer: #{{ ticket.order_id }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="status-badge status-{{ ticket.status }}">
+                {% if ticket.status == 'open' %}Offen
+                {% elif ticket.status == 'in_progress' %}In Bearbeitung
+                {% elif ticket.status == 'waiting_customer' %}Warten auf Ihre Antwort
+                {% elif ticket.status == 'resolved' %}Gelöst
+                {% elif ticket.status == 'closed' %}Geschlossen
+                {% else %}{{ ticket.status }}{% endif %}
+            </div>
+        </div>
+
+        {% if ticket.status in ['resolved', 'closed'] %}
+        <div class="alert">
+            ⚠️ Dieses Ticket wurde als "{{ 'gelöst' if ticket.status == 'resolved' else 'geschlossen' }}" markiert.
+            {% if ticket.status == 'resolved' %}
+            Sie können weiter antworten, um das Ticket wieder zu öffnen.
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Chat -->
+        <div class="ticket-chat">
+            {% for message in messages %}
+            <div class="message {{ 'customer' if message.sender_type == 'customer' else 'admin' }}">
+                <div class="message-header">
+                    <span class="message-sender">
+                        {% if message.sender_type == 'customer' %}Sie
+                        {% else %}Support-Team{% endif %}
+                    </span>
+                    <span class="message-time">
+                        {{ message.created_at.strftime('%d.%m.%Y %H:%M') }}
+                    </span>
+                </div>
+                <div class="message-text">{{ message.message }}</div>
+
+                <!-- File Attachments -->
+                {% if message.attachments and message.attachments|length > 0 %}
+                <div class="attachments">
+                    <div class="attachments-title">
+                        <span>📎</span>
+                        <span>Dateianhänge ({{ message.attachments|length }})</span>
+                    </div>
+                    <div class="attachment-list">
+                        {% for attachment in message.attachments %}
+                        <a href="/uploads/{{ attachment.path }}"
+                           class="attachment-item"
+                           target="_blank"
+                           download="{{ attachment.filename }}">
+                            <span class="attachment-icon">
+                                {% if attachment.type in ['png', 'jpg', 'jpeg', 'gif'] %}🖼️
+                                {% elif attachment.type == 'pdf' %}📄
+                                {% elif attachment.type == 'txt' %}📄
+                                {% elif attachment.type in ['doc', 'docx'] %}📝
+                                {% elif attachment.type in ['xls', 'xlsx'] %}📊
+                                {% elif attachment.type == 'zip' %}📦
+                                {% else %}📎{% endif %}
+                            </span>
+                            <div class="attachment-info">
+                                <div class="attachment-name">{{ attachment.filename }}</div>
+                                <div class="attachment-size">
+                                    {% if attachment.size < 1024 %}
+                                        {{ attachment.size }} Bytes
+                                    {% elif attachment.size < 1048576 %}
+                                        {{ (attachment.size / 1024)|round(1) }} KB
+                                    {% else %}
+                                        {{ (attachment.size / 1048576)|round(1) }} MB
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Reply Form (only if ticket is not closed) -->
+        {% if ticket.status != 'closed' %}
+        <div class="reply-form">
+            <h3 style="margin-top: 0;">Antwort hinzufügen</h3>
+            <form method="POST" action="/ticket/reply/{{ ticket.ticket_number }}" enctype="multipart/form-data" id="replyForm">
+                <textarea name="message" placeholder="Schreiben Sie Ihre Nachricht hier..." required></textarea>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <input type="file" id="attachments" name="attachments[]"
+                           multiple accept=".png,.jpg,.jpeg,.gif,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip"
+                           style="display: none;"
+                           onchange="handleFiles(this.files)">
+
+                    <div id="fileUploadArea" class="file-upload-area">
+                        <div class="file-upload-icon">📎</div>
+                        <div class="file-upload-text">Dateianhänge hinzufügen (optional)</div>
+                        <div class="file-upload-subtext">Klicken oder Dateien hierher ziehen</div>
+                    </div>
+
+                    <div id="fileList" class="file-list"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    {% if ticket.status == 'resolved' %}Ticket wieder öffnen und antworten
+                    {% else %}Antwort senden{% endif %}
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">← Zurück zur Startseite</a>
+            <a href="/ticket/create" class="nav-btn primary">➕ Neues Ticket erstellen</a>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`Datei "${file.name}" ist zu groß (max. 5 MB)`);
+                    continue;
+                }
+
+                // Check if file already exists
+                if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push(file);
+                }
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+
+            if (selectedFiles.length > 0) {
+                fileList.style.display = 'block';
+                fileList.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    const fileSize = formatFileSize(file.size);
+                    const fileExt = file.name.split('.').pop().toLowerCase();
+                    const fileIcon = getFileIcon(fileExt);
+
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <span class="file-icon">${fileIcon}</span>
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                        <button type="button" class="file-remove" onclick="removeFile(${index})">×</button>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+
+                fileUploadArea.innerHTML = `
+                    <div class="file-upload-icon">📎</div>
+                    <div class="file-upload-text">${selectedFiles.length} Datei(en) ausgewählt</div>
+                    <div class="file-upload-subtext">Klicken oder ziehen Sie weitere Dateien</div>
+                `;
+            } else {
+                fileList.style.display = 'none';
+                fileUploadArea.innerHTML = `
+                    <div class="file-upload-icon">📎</div>
+                    <div class="file-upload-text">Dateianhänge hinzufügen (optional)</div>
+                    <div class="file-upload-subtext">Klicken oder Dateien hierher ziehen</div>
+                `;
+            }
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function getFileIcon(ext) {
+            const icons = {
+                'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️',
+                'pdf': '📄', 'txt': '📄',
+                'doc': '📝', 'docx': '📝',
+                'xls': '📊', 'xlsx': '📊',
+                'zip': '📦'
+            };
+            return icons[ext] || '📎';
+        }
+
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('attachments');
+
+            // Click to open file dialog
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+
+            // Form submission
+            document.getElementById('replyForm').addEventListener('submit', function(e) {
+                // Files will be uploaded via normal form submission with enctype="multipart/form-data"
+                // No need for custom fetch
+            });
+        });
+    </script>
+</body>
+</html>
