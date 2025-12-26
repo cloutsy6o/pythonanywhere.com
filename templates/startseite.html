@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="Günstiger Gefunden - Preisvergleich für Amazon, Otto, AliExpress und Temu. Finden Sie die günstigsten Preise.">
+    <meta name="keywords" content="Preisvergleich, günstig, Amazon, Otto, AliExpress, Temu, Einkaufen, Angebote">
+    <meta name="author" content="Günstiger Gefunden">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Günstiger Gefunden - Preisvergleich">
+    <meta property="og:description" content="Finden Sie die günstigsten Preise auf Amazon, Otto, AliExpress und Temu">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url_root }}">
+    <meta property="og:image" content="{{ url_for('static', filename='uploads/og-image.jpg', _external=True) }}">
+
+    <title>Günstiger Gefunden - Preisvergleich für Amazon, Otto, AliExpress & Temu</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-96x96.png') }}" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+
+    <!-- Amazon-style Mobile Header CSS -->
+    <style>
+        /* Amazon Mobile Header Styles */
+        .amazon-mobile-header {
+            background: #131921;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0 0 5px 0;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            height: 50px;
+        }
+
+        .mobile-logo {
+            flex: 1;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+        }
+
+        .amazon-logo {
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: -1px;
+            display: inline-block;
+        }
+
+        .logo-highlight {
+            color: #ff9900;
+        }
+
+        .mobile-account {
+            margin-left: 15px;
+        }
+
+        .login-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .login-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .account-icon {
+            font-size: 18px;
+        }
+
+        .account-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mobile-search-container {
+            padding: 0 15px 8px;
+        }
+
+        .mobile-search-form {
+            width: 100%;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .mobile-search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            font-size: 16px;
+            outline: none;
+            color: #111;
+        }
+
+        .mobile-search-input::placeholder {
+            color: #767676;
+        }
+
+        .search-submit-btn {
+            background: #febd69;
+            border: none;
+            padding: 0 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+        }
+
+        .search-submit-btn:hover {
+            background: #f3a847;
+        }
+
+        .search-icon {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .mobile-nav-menu {
+            background: #232f3e;
+            border-top: 1px solid #3a4553;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .mobile-nav-menu::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-scroll-container {
+            display: flex;
+            padding: 0 15px;
+            min-width: min-content;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            text-decoration: none;
+            color: white;
+            white-space: nowrap;
+            position: relative;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            min-width: 70px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-bottom-color: #ff9900;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+
+        .nav-text {
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .cart-nav-item {
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff9900;
+            color: #111;
+            font-size: 10px;
+            font-weight: bold;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Categories Section */
+        .categories-section {
+            background: white;
+            padding: 15px 0;
+            border-bottom: 1px solid #e7e7e7;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 0 15px;
+        }
+
+        .category-card {
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            padding: 10px 5px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .category-card:hover {
+            background: #f7f7f7;
+        }
+
+        .category-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .category-name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Desktop-only elements */
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .amazon-mobile-header {
+                display: none;
+            }
+
+            .desktop-only {
+                display: block;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(6, 1fr);
+                padding: 0;
+            }
+        }
+
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .product-card {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .product-image img {
+            max-width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        .product-title {
+            font-size: 16px;
+            color: #0066c0;
+            text-decoration: none;
+            height: 44px;
+            overflow: hidden;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .product-title:hover {
+            color: #c45500;
+            text-decoration: underline;
+        }
+
+        .price-section {
+            margin: 10px 0;
+        }
+
+        .price {
+            color: #b12704;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: #565959;
+        }
+
+        .shop-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .shop-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border: 1px solid #d5d9d9;
+            border-radius: 4px;
+            text-decoration: none;
+            background: #f8f9fa;
+            transition: background 0.2s;
+        }
+
+        .shop-button:hover {
+            background: #e3e6e6;
+        }
+
+        .shop-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .shop-price {
+            font-size: 14px;
+            font-weight: bold;
+            color: #b12704;
+        }
+
+        .add-to-cart-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 8px;
+            background: #ffd814;
+            border: 1px solid #fcd200;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #f7ca00;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quantity-selector select {
+            padding: 5px;
+            border: 1px solid #888c8c;
+            border-radius: 4px;
+            background: white;
+        }
+
+        /* Star Ratings */
+        .star-rating-section {
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .simple-stars {
+            color: #ffa41c;
+            display: inline-block;
+        }
+
+        .star {
+            font-size: 16px;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .rating-text {
+            font-size: 12px;
+            color: #0066c0;
+            margin-left: 5px;
+        }
+
+        .rating-count {
+            font-size: 11px;
+            color: #555;
+            margin-left: 3px;
+        }
+
+        /* Badge */
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff9900;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Desktop Header */
+        .desktop-header {
+            background: #131921;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .desktop-header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .desktop-logo {
+            flex-shrink: 0;
+        }
+
+        .desktop-search {
+            flex: 1;
+        }
+
+        .desktop-search-form {
+            display: flex;
+        }
+
+        .desktop-search-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        .desktop-search-btn {
+            background: #febd69;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .desktop-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .desktop-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .desktop-nav-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hamburger-menu {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 5px;
+        }
+
+        @media (max-width: 767px) {
+            .desktop-header {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="amazon-mobile-header">
+        <!-- Top Row: Logo + Hamburger Menu + Cart -->
+        <div class="header-top-row">
+            <!-- Hamburger Menu -->
+            <button class="hamburger-btn" id="mobileHamburger" aria-label="Menü öffnen">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="mobile-logo">
+                <a href="/" class="logo-link">
+                    <span class="amazon-logo">günstiger<span class="logo-highlight">gefunden</span></span>
+                </a>
+            </div>
+
+            <!-- Cart -->
+            <div class="mobile-cart">
+                <a href="{% if session.customer_id %}/cart{% else %}/customer/login{% endif %}" class="login-btn">
+                    <span class="account-icon">🛒</span>
+                    {% if session.cart_count and session.cart_count|int > 0 %}
+                    <span class="cart-badge">{{ session.cart_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mobile-search-container">
+            <form action="/search" method="GET" class="mobile-search-form">
+                <div class="search-input-wrapper">
+                    <input type="text"
+                           name="q"
+                           placeholder="Günstiger Gefunden durchsuchen"
+                           class="mobile-search-input"
+                           aria-label="Suchbegriff eingeben"
+                           value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="search-submit-btn" aria-label="Suchen">
+                        <span class="search-icon">🔍</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Categories Navigation -->
+        <nav class="mobile-nav-menu">
+            <div class="nav-scroll-container">
+                <a href="/search?q=Haushalt" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Haushalt</span>
+                </a>
+
+                <a href="/search?q=Elektronik" class="nav-item">
+                    <span class="nav-icon">🔌</span>
+                    <span class="nav-text">Elektronik</span>
+                </a>
+
+                <a href="/search?q=Garten" class="nav-item">
+                    <span class="nav-icon">🌿</span>
+                    <span class="nav-text">Garten</span>
+                </a>
+
+                <a href="/search?q=Sport" class="nav-item">
+                    <span class="nav-icon">⚽</span>
+                    <span class="nav-text">Sport</span>
+                </a>
+
+                <a href="/search?q=Spielzeug" class="nav-item">
+                    <span class="nav-icon">🎮</span>
+                    <span class="nav-text">Spielzeug</span>
+                </a>
+
+                <a href="/search?q=Küche" class="nav-item">
+                    <span class="nav-icon">🍳</span>
+                    <span class="nav-text">Küche</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Desktop Header -->
+    <header class="desktop-header desktop-only">
+        <div class="desktop-header-content">
+            <!-- Hamburger Menu -->
+            <button class="hamburger-menu" id="desktopHamburger" aria-label="Menü öffnen">
+                ☰
+            </button>
+
+            <!-- Logo -->
+            <div class="desktop-logo">
+                <a href="/" style="text-decoration: none; color: white;">
+                    <span style="font-size: 24px; font-weight: bold;">
+                        günstiger<span style="color: #ff9900;">gefunden</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Search -->
+            <div class="desktop-search">
+                <form action="/search" method="GET" class="desktop-search-form">
+                    <input type="text"
+                           name="q"
+                           placeholder="Produkte suchen..."
+                           class="desktop-search-input"
+                           value="{{ request.args.get('q', '') }}">
+                    <button type="submit" class="desktop-search-btn">
+                        🔍
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Navigation -->
+            <div class="desktop-nav-right">
+                {% if session.customer_id %}
+                <a href="/customer/profile" class="desktop-nav-link">
+                    <div style="font-size: 12px;">Hallo,</div>
+                    <div style="font-weight: bold;">Mein Konto</div>
+                </a>
+                {% else %}
+                <a href="/customer/login" class="desktop-nav-link">
+                    <div style="font-size: 12px;">Hallo,</div>
+                    <div style="font-weight: bold;">Anmelden</div>
+                </a>
+                {% endif %}
+
+                <a href="{% if session.customer_id %}/cart{% else %}/customer/login{% endif %}" class="desktop-nav-link">
+                    <div style="position: relative;">
+                        <span style="font-size: 24px;">🛒</span>
+                        {% if session.cart_count and session.cart_count|int > 0 %}
+                        <div style="position: absolute; top: -5px; right: -10px; background: #ff9900; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center;">
+                            {{ session.cart_count }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div style="font-weight: bold;">Warenkorb</div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Side Menu -->
+    <div class="mobile-side-menu" id="mobileSideMenu" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000;">
+        <div style="width: 80%; max-width: 300px; height: 100%; background: white; overflow-y: auto;">
+            <!-- Menu Header -->
+            <div style="background: #232f3e; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">Menü</h3>
+                <button id="closeMenu" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">×</button>
+            </div>
+
+            <!-- Menu Content -->
+            <div style="padding: 20px;">
+                <!-- Account Section -->
+                <div style="margin-bottom: 20px;">
+                    {% if session.customer_id %}
+                    <a href="/customer/profile" style="display: block; padding: 10px; background: #f0f2f2; border-radius: 4px; text-decoration: none; color: #333;">
+                        👤 Mein Konto
+                    </a>
+                    {% else %}
+                    <a href="/customer/login" style="display: block; padding: 10px; background: #f0f2f2; border-radius: 4px; text-decoration: none; color: #333;">
+                        👤 Anmelden
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Categories -->
+                <h4 style="margin-bottom: 10px;">Kategorien</h4>
+                <div style="display: grid; gap: 10px;">
+                    <a href="/search?q=Haushalt" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🏠</span> Haushalt
+                    </a>
+                    <a href="/search?q=Elektronik" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🔌</span> Elektronik
+                    </a>
+                    <a href="/search?q=Garten" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🌿</span> Garten
+                    </a>
+                    <a href="/search?q=Sport" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>⚽</span> Sport
+                    </a>
+                    <a href="/search?q=Spielzeug" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: #333; display: flex; align-items: center; gap: 10px;">
+                        <span>🎮</span> Spielzeug
+                    </a>
+                </div>
+
+                <!-- Links -->
+                <div style="margin-top: 20px;">
+                    <a href="/order/history" style="display: block; padding: 10px; text-decoration: none; color: #0066c0;">
+                        📦 Meine Bestellungen
+                    </a>
+                    <a href="/ticket/my-tickets" style="display: block; padding: 10px; text-decoration: none; color: #0066c0;">
+                        🎫 Meine Tickets
+                    </a>
+                    {% if session.customer_id %}
+                    <a href="/customer/logout" style="display: block; padding: 10px; text-decoration: none; color: #0066c0;">
+                        🚪 Abmelden
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Categories Section -->
+        <section class="categories-section">
+            <div class="categories-grid">
+                <a href="/search?q=Haushalt" class="category-card">
+                    <span class="category-icon">🏠</span>
+                    <span class="category-name">Haushalt</span>
+                </a>
+                <a href="/search?q=Elektronik" class="category-card">
+                    <span class="category-icon">🔌</span>
+                    <span class="category-name">Elektronik</span>
+                </a>
+                <a href="/search?q=Garten" class="category-card">
+                    <span class="category-icon">🌿</span>
+                    <span class="category-name">Garten</span>
+                </a>
+                <a href="/search?q=Sport" class="category-card">
+                    <span class="category-icon">⚽</span>
+                    <span class="category-name">Sport</span>
+                </a>
+                <a href="/search?q=Spielzeug" class="category-card">
+                    <span class="category-icon">🎮</span>
+                    <span class="category-name">Spielzeug</span>
+                </a>
+                <a href="/search?q=Küche" class="category-card">
+                    <span class="category-icon">🍳</span>
+                    <span class="category-name">Küche</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Product Grid -->
+        <h1 style="margin: 20px 0; font-size: 24px;">Aktuelle Angebote</h1>
+
+        <div class="product-grid">
+            {% for produkt in produkte %}
+            <div class="product-card">
+                {% if produkt.label %}
+                <div class="product-badge">{{ produkt.label }}</div>
+                {% endif %}
+
+                <div class="product-image">
+                    <img src="/static{{ produkt.bild_pfad }}"
+                         alt="{{ produkt.titel }}"
+                         loading="lazy">
+                </div>
+
+                <a href="/product/{{ produkt.id }}" class="product-title">{{ produkt.titel }}</a>
+
+                <!-- Star Ratings Section -->
+                {% if produkt.bewertung_durchschnitt and produkt.bewertung_anzahl and produkt.bewertung_durchschnitt > 0 %}
+                <div class="star-rating-section">
+                    <div class="simple-stars">
+                        {% for i in range(1, 6) %}
+                            {% if produkt.bewertung_durchschnitt >= i %}
+                                <span class="star">★</span>
+                            {% else %}
+                                <span class="star empty">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <span class="rating-text">{{ "%.1f"|format(produkt.bewertung_durchschnitt) }}</span>
+                    <span class="rating-count">({{ produkt.bewertung_anzahl }})</span>
+                </div>
+                {% endif %}
+
+                {% if produkt.preise %}
+                    {% set prices = produkt.preise.values()|selectattr('aktueller_preis')|list %}
+                    {% if prices %}
+                        {% set min_price = prices|map(attribute='aktueller_preis')|min %}
+                        <div class="price-section">
+                            <div class="price">{{ "%.2f"|format(min_price) }} €</div>
+                            <div class="price-label">Günstigster Preis</div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
+                <div class="shop-buttons">
+                    {% for shop_id, shop in produkt.preise.items() %}
+                        {% if shop.link and shop.aktueller_preis %}
+                            <a href="{{ shop.link }}" class="shop-button" target="_blank" rel="noopener">
+                                <span class="shop-name">
+                                    {% if shop_id == '1' %}Otto
+                                    {% elif shop_id == '2' %}Amazon
+                                    {% elif shop_id == '3' %}AliExpress
+                                    {% elif shop_id == '4' %}Temu
+                                    {% elif shop_id == '5' %}Kaufland
+                                    {% else %}Shop {{ shop_id }}
+                                    {% endif %}
+                                </span>
+                                <span class="shop-price">{{ "%.2f"|format(shop.aktueller_preis) }} €</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="add-to-cart-section">
+                    <div class="quantity-selector">
+                        <label style="font-size: 14px;">Menge:</label>
+                        <select class="quantity-select" data-product-id="{{ produkt.id }}">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <button class="add-to-cart-btn" onclick="addToCart({{ produkt.id }})">
+                        🛒 In den Warenkorb
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer" style="margin-top: 40px; padding: 20px; background: #f7f7f7; border-radius: 4px; font-size: 14px; color: #555;">
+            Wir sind nicht der Verkäufer der Produkte. Alle Preise und Produktinformationen werden von Händlern bezogen und ohne Gewähr angezeigt. Bitte überprüfen Sie immer die aktuellen Daten beim Händler, da sie sich ändern können. Wir übernehmen keine Haftung für fehlerhafte Angaben oder abweichende gelieferte Produkte.
+        </div>
+    </div>
+
+    <script>
+    // Mobile menu functionality
+    const mobileHamburger = document.getElementById('mobileHamburger');
+    const desktopHamburger = document.getElementById('desktopHamburger');
+    const closeMenu = document.getElementById('closeMenu');
+    const mobileSideMenu = document.getElementById('mobileSideMenu');
+
+    function openMenu() {
+        mobileSideMenu.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenuFunc() {
+        mobileSideMenu.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    if (mobileHamburger) {
+        mobileHamburger.addEventListener('click', openMenu);
+    }
+
+    if (desktopHamburger) {
+        desktopHamburger.addEventListener('click', openMenu);
+    }
+
+    if (closeMenu) {
+        closeMenu.addEventListener('click', closeMenuFunc);
+    }
+
+    // Close menu when clicking outside
+    mobileSideMenu.addEventListener('click', function(e) {
+        if (e.target === mobileSideMenu) {
+            closeMenuFunc();
+        }
+    });
+
+    // Add to cart function
+    function addToCart(productId) {
+        const quantitySelect = document.querySelector(`select[data-product-id="${productId}"]`);
+        const quantity = parseInt(quantitySelect?.value) || 1;
+
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('quantity', quantity);
+
+        fetch('/cart/add', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            } else if (data.success) {
+                // Update cart count
+                const cartBadges = document.querySelectorAll('.cart-badge');
+                cartBadges.forEach(badge => {
+                    badge.textContent = data.count;
+                    badge.style.display = 'flex';
+                });
+
+                // Update desktop cart count
+                const desktopCartCounts = document.querySelectorAll('.desktop-nav-link div:last-child');
+                desktopCartCounts.forEach(el => {
+                    if (el.textContent === 'Warenkorb') {
+                        const countEl = el.previousElementSibling.querySelector('div');
+                        if (countEl) {
+                            countEl.textContent = data.count;
+                            countEl.style.display = data.count > 0 ? 'flex' : 'none';
+                        }
+                    }
+                });
+
+                // Show success animation
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Hinzugefügt';
+                btn.style.background = '#28a745';
+                btn.style.borderColor = '#218838';
+
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#ffd814';
+                    btn.style.borderColor = '#fcd200';
+                }, 1500);
+            } else {
+                alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Fehler beim Hinzufügen zum Warenkorb');
+        });
+    }
+    </script>
+</body>
+</html>
