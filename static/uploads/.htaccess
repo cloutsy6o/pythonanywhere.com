@@ -1,0 +1,16 @@
+# SCHRITT 1: Upload-Verzeichnis absichern
+
+# Verhindert Ausführung von PHP, HTML, JavaScript
+<FilesMatch "\.(php|php5|php7|phtml|html|htm|js)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Erlaubt Bildformate
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Kein Directory Listing
+Options -Indexes
