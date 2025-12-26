@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Bestellstatistiken</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header-date { font-size: 14px; color: #ff9900; }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Stats cards */
+        .stat-card {
+            background: white;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-top: 4px solid #ff9900;
+        }
+        .stat-card.revenue { border-top-color: #28a745; }
+        .stat-card.orders { border-top-color: #007bff; }
+        .stat-card.customers { border-top-color: #6f42c1; }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #232f3e;
+            margin: 10px 0 5px 0;
+        }
+        .stat-label {
+            color: #555;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+
+        /* Two-column layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Section cards */
+        .section-card {
+            background: white;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #232f3e;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* Status distribution */
+        .status-bars { margin-top: 15px; }
+        .status-bar {
+            margin-bottom: 10px;
+        }
+        .status-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .status-name { font-weight: bold; }
+        .status-count { color: #555; }
+        .status-progress {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .status-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        .fill-pending { background: #ffc107; }
+        .fill-processing { background: #17a2b8; }
+        .fill-shipped { background: #007bff; }
+        .fill-completed { background: #28a745; }
+        .fill-cancelled { background: #dc3545; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: bold;
+        }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .badge-pending { background: #ffc107; color: black; }
+        .badge-processing { background: #17a2b8; color: white; }
+        .badge-shipped { background: #007bff; color: white; }
+        .badge-completed { background: #28a745; color: white; }
+        .badge-cancelled { background: #dc3545; color: white; }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #555;
+            text-decoration: none;
+            border-radius: 3px;
+            border: 1px solid #d5d9d9;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .nav-btn:hover {
+            background: #e7e7e7;
+        }
+        .nav-btn.primary {
+            background: #ff9900;
+            color: black;
+            border-color: #e68a00;
+        }
+        .nav-btn.primary:hover {
+            background: #e68a00;
+        }
+
+        /* Currency formatting */
+        .currency { font-family: 'Courier New', monospace; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'admin_header.html' %}
+
+    <div class="container">
+        <div class="header">
+            <h1>📊 Admin Dashboard</h1>
+            <div class="header-date">Heute: {{ today_date }}</div>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="dashboard-grid">
+            <div class="stat-card orders">
+                <div class="stat-label">Gesamtbestellungen</div>
+                <div class="stat-number">{{ total_orders }}</div>
+                <div class="stat-change positive">Alle Zeiten</div>
+            </div>
+
+            <div class="stat-card orders">
+                <div class="stat-label">Heutige Bestellungen</div>
+                <div class="stat-number">{{ today_orders }}</div>
+                <div class="stat-change positive">+{{ today_orders }} heute</div>
+            </div>
+
+            <div class="stat-card orders">
+                <div class="stat-label">Letzte 30 Tage</div>
+                <div class="stat-number">{{ last_month_orders }}</div>
+                <div class="stat-change positive">Letzter Monat</div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-label">Gesamtumsatz</div>
+                <div class="stat-number currency">{{ "%.2f"|format(total_revenue) }} €</div>
+                <div class="stat-change positive">Alle Bestellungen</div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-label">Heutiger Umsatz</div>
+                <div class="stat-number currency">{{ "%.2f"|format(today_revenue) }} €</div>
+                <div class="stat-change positive">+{{ "%.2f"|format(today_revenue) }} € heute</div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-label">Umsatz (30 Tage)</div>
+                <div class="stat-number currency">{{ "%.2f"|format(month_revenue) }} €</div>
+                <div class="stat-change positive">Letzter Monat</div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout -->
+        <div class="two-column">
+            <!-- Status Distribution -->
+            <div class="section-card">
+                <h3 class="section-title">📈 Statusverteilung</h3>
+                <div class="status-bars">
+                    {% for stat in status_stats %}
+                    <div class="status-bar">
+                        <div class="status-label">
+                            <span class="status-name">
+                                {% if stat.status == 'pending' %}Ausstehend
+                                {% elif stat.status == 'processing' %}In Bearbeitung
+                                {% elif stat.status == 'shipped' %}Versandt
+                                {% elif stat.status == 'completed' %}Abgeschlossen
+                                {% elif stat.status == 'cancelled' %}Storniert
+                                {% else %}{{ stat.status }}{% endif %}
+                            </span>
+                            <span class="status-count">{{ stat.count }}</span>
+                        </div>
+                        <div class="status-progress">
+                            <div class="status-fill fill-{{ stat.status }}"
+                                 style="width: {{ (stat.count / total_orders * 100) if total_orders > 0 else 0 }}%">
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Top Kunden -->
+            <div class="section-card">
+                <h3 class="section-title">👥 Top Kunden</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kunde</th>
+                            <th>Bestellungen</th>
+                            <th>Gesamt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for customer in top_customers %}
+                        <tr>
+                            <td>
+                                {{ customer.first_name }} {{ customer.last_name }}
+                                <div style="font-size: 11px; color: #767676;">{{ customer.email }}</div>
+                            </td>
+                            <td>{{ customer.order_count }}</td>
+                            <td class="currency">{{ "%.2f"|format(customer.total_spent or 0) }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="section-card">
+            <h3 class="section-title">🆕 Letzte Bestellungen</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestell-Nr</th>
+                        <th>Kunde</th>
+                        <th>Datum</th>
+                        <th>Betrag</th>
+                        <th>Status</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>{{ order.first_name }} {{ order.last_name }}</td>
+                        <td>{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td class="currency">{{ "%.2f"|format(order.total_amount) }} €</td>
+                        <td>
+                            <span class="status-badge badge-{{ order.status }}">
+                                {% if order.status == 'pending' %}Ausstehend
+                                {% elif order.status == 'processing' %}In Bearbeitung
+                                {% elif order.status == 'shipped' %}Versandt
+                                {% elif order.status == 'completed' %}Abgeschlossen
+                                {% elif order.status == 'cancelled' %}Storniert
+                                {% else %}{{ order.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/admin/order/{{ order.id }}" style="color: #0066c0; text-decoration: none; font-size: 12px;">
+                                Ansehen →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="/admin/orders" class="nav-btn primary">📦 Alle Bestellungen anzeigen</a>
+            <a href="/admin/panel" class="nav-btn">← Zurück zum Admin Panel</a>
+        </div>
+    </div>
+</body>
+</html>
