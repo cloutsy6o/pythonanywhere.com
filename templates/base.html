@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}My Domain{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Inline critical CSS for mobile */
+        .mobile-only { display: none; }
+        .desktop-only { display: block; }
+
+        @media (max-width: 768px) {
+            .mobile-only { display: block; }
+            .desktop-only { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-only">
+        {% include 'mobile_header.html' %}
+    </div>
+
+    <!-- Desktop Header -->
+    <div class="desktop-only">
+        {% include 'desktop_header.html' %}
+    </div>
+
+    <!-- Mobile menu overlay backdrop -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile-menu.js') }}"></script>
+
+    {% block extra_scripts %}{% endblock %}
+
+    <script>
+        // Mobile detection
+        function isMobileDevice() {
+            return window.innerWidth <= 768 ||
+                   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Apply mobile class to body for CSS targeting
+        if (isMobileDevice()) {
+            document.body.classList.add('mobile-device');
+        }
+    </script>
+</body>
+</html>
