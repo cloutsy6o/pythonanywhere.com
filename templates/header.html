@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="Günstiger Gefunden - Preisvergleich für Amazon, Otto, AliExpress und Temu. Finden Sie die günstigsten Preise.">
+    <meta name="keywords" content="Preisvergleich, günstig, Amazon, Otto, AliExpress, Temu, Einkaufen, Angebote">
+    <meta name="author" content="Günstiger Gefunden">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Günstiger Gefunden - Preisvergleich">
+    <meta property="og:description" content="Finden Sie die günstigsten Preise auf Amazon, Otto, AliExpress und Temu">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url_root }}">
+
+    <!-- Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Günstiger Gefunden",
+        "description": "Preisvergleichsplattform für Amazon, Otto, AliExpress und Temu",
+        "url": "{{ request.url_root }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.url_root }}search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+
+    <title>{% block title %}Günstiger Gefunden - Preisvergleich{% endblock %}</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon-96x96.png') }}" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#131921">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+
+    <!-- Inline critical CSS for mobile responsiveness -->
+    <style>
+        /* Ensure proper mobile header behavior */
+        .desktop-header { display: block; }
+        .mobile-header { display: none; }
+        body.mobile-view .desktop-header { display: none !important; }
+        body.mobile-view .mobile-header { display: block !important; }
+
+        /* Prevent FOUC (Flash of Unstyled Content) */
+        .mobile-header, .desktop-header { visibility: visible; }
+
+        /* Username truncation for mobile */
+        .mobile-username-truncated {
+            display: inline-block;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        /* Username truncation for desktop */
+        .desktop-username-truncated {
+            display: inline-block;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Mobile menu backdrop */
+        .menu-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .menu-backdrop.active {
+            display: block;
+        }
+
+        /* Prevent body scroll when menu is open */
+        body.menu-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <!-- DESKTOP HEADER (visible only on desktop) -->
+    <header class="desktop-header">
+        <div class="header-container">
+            <div class="header-top">
+                <div class="logo-section">
+                    <a href="/" class="logo-link" aria-label="Günstiger Gefunden Home">
+                        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Günstiger Gefunden Logo" class="logo-img">
+                    </a>
+                </div>
+
+                <!-- SINGLE SEARCH BAR in header (as requested - removed duplicate from site) -->
+                <div class="search-section">
+                    <form action="/search" method="GET" class="search-form" role="search">
+                        <div class="search-wrapper">
+                            <input type="text"
+                                   name="q"
+                                   class="search-input"
+                                   placeholder="Produkte, Marken und Kategorien suchen..."
+                                   aria-label="Suche"
+                                   value="{{ request.args.get('q', '') }}"
+                                   autocomplete="off">
+                            <button type="submit" class="search-button" aria-label="Suche starten">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="user-section">
+                    {% if current_user.is_authenticated %}
+                    <div class="user-info">
+                        <div class="user-greeting">
+                            <span class="hello-text">Hallo,</span>
+                            <div class="username-container" title="{{ current_user.full_name or current_user.username }}">
+                                <!-- USERNAME WITH TRUNCATION FOR DESKTOP -->
+                                <span class="desktop-username-truncated">
+                                    {{ current_user.full_name or current_user.username }}
+                                </span>
+                            </div>
+                        </div>
+                        <a href="/account" class="account-link">Konto & Listen</a>
+                    </div>
+                    {% else %}
+                    <div class="auth-links">
+                        <a href="/login" class="signin-link">Anmelden</a>
+                        <span class="divider">|</span>
+                        <a href="/register" class="register-link">Registrieren</a>
+                    </div>
+                    {% endif %}
+
+                    <a href="/orders" class="orders-link">
+                        <i class="fas fa-box"></i>
+                        <span class="orders-text">Bestellungen</span>
+                    </a>
+
+                    <a href="/cart" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-text">Warenkorb</span>
+                        {% if cart_count and cart_count > 0 %}
+                        <span class="cart-count">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+
+            <nav class="header-nav" aria-label="Hauptnavigation">
+                <button class="hamburger-menu" id="desktopMenuToggle" aria-label="Menü öffnen" aria-expanded="false">
+                    <i class="fas fa-bars"></i>
+                    <span>Alle</span>
+                </button>
+
+                <div class="nav-links">
+                    <a href="/deals" class="nav-link">Angebote des Tages</a>
+                    <a href="/categories" class="nav-link">Kategorien</a>
+                    <a href="/basics" class="nav-link">Basics</a>
+                    <a href="/livestreams" class="nav-link">Livestreams</a>
+                    <a href="/video" class="nav-link">Video</a>
+                    <a href="/help" class="nav-link">Kundenservice</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MOBILE HEADER (visible only on mobile) -->
+    <header class="mobile-header">
+        <!-- Top Bar -->
+        <div class="mobile-header-top">
+            <!-- Hamburger Menu Button -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü öffnen" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <!-- Logo -->
+            <div class="mobile-logo">
+                <a href="/" class="logo-link" aria-label="Günstiger Gefunden Home">
+                    <img src="{{ url_for('static', filename='img/logo-mobile.png') }}" alt="Günstiger Gefunden" class="mobile-logo-img">
+                </a>
+            </div>
+
+            <!-- User & Cart -->
+            <div class="mobile-actions">
+                {% if current_user.is_authenticated %}
+                <div class="mobile-user-info" id="mobileUserInfo">
+                    <div class="user-initials" title="{{ current_user.full_name or current_user.username }}">
+                        {{ (current_user.full_name or current_user.username)[:1]|upper }}
+                    </div>
+                    <div class="user-name-truncated" title="{{ current_user.full_name or current_user.username }}">
+                        <!-- USERNAME WITH TRUNCATION FOR MOBILE (as requested - Max Musterm… example) -->
+                        <span class="mobile-username-truncated">
+                            {{ (current_user.full_name or current_user.username)[:12] }}
+                            {% if (current_user.full_name or current_user.username)|length > 12 %}…{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/login" class="mobile-signin" aria-label="Anmelden">
+                    <i class="fas fa-user"></i>
+                </a>
+                {% endif %}
+
+                <a href="/cart" class="mobile-cart" aria-label="Warenkorb">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if cart_count and cart_count > 0 %}
+                    <span class="mobile-cart-count">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Single Search Bar in mobile header (as requested) -->
+        <div class="mobile-search-container">
+            <form action="/search" method="GET" class="mobile-search-form" role="search">
+                <div class="mobile-search-wrapper">
+                    <input type="text"
+                           name="q"
+                           class="mobile-search-input"
+                           placeholder="Günstiger Gefunden durchsuchen..."
+                           aria-label="Suche"
+                           value="{{ request.args.get('q', '') }}"
+                           autocomplete="off">
+                    <button type="submit" class="mobile-search-button" aria-label="Suche starten">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenu" aria-hidden="true">
+            <div class="mobile-menu-header">
+                <div class="menu-user-section">
+                    {% if current_user.is_authenticated %}
+                    <div class="menu-user-profile">
+                        <div class="menu-user-avatar">
+                            {{ (current_user.full_name or current_user.username)[:1]|upper }}
+                        </div>
+                        <div class="menu-user-details">
+                            <h3 class="menu-username">{{ current_user.full_name or current_user.username }}</h3>
+                            <p class="menu-user-email">{{ current_user.email|truncate(20) if current_user.email else '' }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="menu-auth-prompt">
+                        <p>Für besseres Erlebnis anmelden</p>
+                        <a href="/login" class="btn btn-primary btn-block">Anmelden</a>
+                        <a href="/register" class="btn btn-outline btn-block">Registrieren</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- X button to close hamburger menu (as requested) -->
+                <button class="menu-close-btn" id="mobileMenuClose" aria-label="Menü schließen">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <nav class="mobile-nav" role="navigation" aria-label="Mobilnavigation">
+                <div class="nav-section">
+                    <h4 class="nav-section-title">Nach Kategorie einkaufen</h4>
+                    {% for category in categories %}
+                    <a href="/category/{{ category.slug }}" class="mobile-nav-item">
+                        <i class="{{ category.icon_class or 'fas fa-tag' }}"></i>
+                        <span>{{ category.name }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <div class="nav-section">
+                    <h4 class="nav-section-title">Dein Konto</h4>
+                    <a href="/account" class="mobile-nav-item">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Dein Konto</span>
+                    </a>
+                    <a href="/orders" class="mobile-nav-item">
+                        <i class="fas fa-box"></i>
+                        <span>Deine Bestellungen</span>
+                    </a>
+                    <a href="/wishlist" class="mobile-nav-item">
+                        <i class="fas fa-heart"></i>
+                        <span>Deine Wunschliste</span>
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="/logout" class="mobile-nav-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Abmelden</span>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="nav-section">
+                    <h4 class="nav-section-title">Einkaufen</h4>
+                    <a href="/deals" class="mobile-nav-item">
+                        <i class="fas fa-tag"></i>
+                        <span>Angebote des Tages</span>
+                    </a>
+                    <a href="/basics" class="mobile-nav-item">
+                        <i class="fas fa-star"></i>
+                        <span>Basics</span>
+                    </a>
+                    <a href="/livestreams" class="mobile-nav-item">
+                        <i class="fas fa-video"></i>
+                        <span>Livestreams</span>
+                    </a>
+                    <a href="/video" class="mobile-nav-item">
+                        <i class="fas fa-play-circle"></i>
+                        <span>Video</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <h4 class="nav-section-title">Hilfe & Einstellungen</h4>
+                    <a href="/help" class="mobile-nav-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Kundenservice</span>
+                    </a>
+                    <a href="/contact" class="mobile-nav-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Kontakt</span>
+                    </a>
+                    <a href="/settings" class="mobile-nav-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Einstellungen</span>
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Menu backdrop (for mobile) -->
+    <div class="menu-backdrop" id="menuBackdrop"></div>
+
+    <!-- Mobile detection script -->
+    <script>
+        // Detect mobile device and add class to body
+        function detectMobile() {
+            const isMobile = window.innerWidth <= 768 ||
+                           /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                document.body.classList.add('mobile-view');
+            } else {
+                document.body.classList.remove('mobile-view');
+            }
+        }
+
+        // Initial detection
+        detectMobile();
+
+        // Detect on resize
+        window.addEventListener('resize', detectMobile);
+
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuBackdrop = document.getElementById('menuBackdrop');
+
+            function toggleMobileMenu(show) {
+                if (show) {
+                    // Show menu
+                    mobileMenu.setAttribute('aria-hidden', 'false');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'true');
+                    menuBackdrop.classList.add('active');
+                    document.body.classList.add('menu-open');
+
+                    // Add slide-in animation
+                    mobileMenu.style.transform = 'translateX(0)';
+                } else {
+                    // Hide menu
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                    menuBackdrop.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+
+                    // Add slide-out animation
+                    mobileMenu.style.transform = 'translateX(-100%)';
+                }
+            }
+
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleMobileMenu(true);
+                });
+            }
+
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleMobileMenu(false);
+                });
+            }
+
+            if (menuBackdrop) {
+                menuBackdrop.addEventListener('click', function() {
+                    toggleMobileMenu(false);
+                });
+            }
+
+            // Close menu on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && mobileMenu.getAttribute('aria-hidden') === 'false') {
+                    toggleMobileMenu(false);
+                }
+            });
+
+            // Close menu when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (mobileMenu.getAttribute('aria-hidden') === 'false' &&
+                    !mobileMenu.contains(e.target) &&
+                    e.target !== mobileMenuToggle &&
+                    !menuBackdrop.contains(e.target)) {
+                    toggleMobileMenu(false);
+                }
+            });
+
+            // Dynamic username truncation for mobile
+            function updateMobileUsername() {
+                const usernameElements = document.querySelectorAll('.mobile-username-truncated');
+                usernameElements.forEach(element => {
+                    const fullText = element.getAttribute('title') || element.textContent;
+                    const maxLength = 12; // As requested: Max Musterm…
+
+                    if (fullText.length > maxLength) {
+                        element.textContent = fullText.substring(0, maxLength - 1) + '…';
+                    }
+                });
+            }
+
+            // Dynamic username truncation for desktop
+            function updateDesktopUsername() {
+                const usernameElements = document.querySelectorAll('.desktop-username-truncated');
+                usernameElements.forEach(element => {
+                    const fullText = element.getAttribute('title') || element.textContent;
+                    const maxLength = 15;
+
+                    if (fullText.length > maxLength) {
+                        element.textContent = fullText.substring(0, maxLength - 1) + '…';
+                    }
+                });
+            }
+
+            // Initialize truncation
+            updateMobileUsername();
+            updateDesktopUsername();
+
+            // Update on window resize
+            window.addEventListener('resize', function() {
+                updateMobileUsername();
+                updateDesktopUsername();
+            });
+
+            // Ensure mobile menu has proper initial state
+            mobileMenu.style.transform = 'translateX(-100%)';
+            mobileMenu.style.transition = 'transform 0.3s ease';
+        });
+
+        // Handle page load - ensure proper header is shown
+        window.addEventListener('load', function() {
+            detectMobile();
+
+            // Check if we're on mobile and the order history page
+            const isOrderHistoryPage = window.location.pathname.includes('/order/history');
+            if (isOrderHistoryPage && document.body.classList.contains('mobile-view')) {
+                // Ensure mobile header is visible for order history page
+                document.querySelector('.mobile-header').style.display = 'block';
+                document.querySelector('.desktop-header').style.display = 'none';
+            }
+        });
+    </script>
+
+    {% block head_extra %}{% endblock %}
+</body>
+</html>
