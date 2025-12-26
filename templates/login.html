@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+  <h2>Login zum Admin-Bereich</h2>
+
+  {% if error %}
+    <p style="color:red;">{{ error }}</p>
+  {% endif %}
+
+  <form method="POST" action="/login">
+    <input type="hidden" name="next" value="{{ next }}">
+
+    <label>Benutzername:
+      <input type="text" name="username" required>
+    </label><br><br>
+
+    <label>Passwort:
+      <input type="password" name="password" required>
+    </label><br><br>
+
+    <button type="submit">Einloggen</button>
+  </form>
+</body>
+</html>
