@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrierung</title>
+    <style>
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; }
+        .alert { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #f8d7da; color: #721c24; }
+        input { width: 100%; padding: 8px; margin: 5px 0; }
+        button { padding: 10px 20px; background: #28a745; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Neues Konto erstellen</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('customer.register') }}">
+            <div>
+                <label>Vorname:</label>
+                <input type="text" name="first_name">
+            </div>
+            <div>
+                <label>Nachname:</label>
+                <input type="text" name="last_name">
+            </div>
+            <div>
+                <label>E-Mail:</label>
+                <input type="email" name="email" required>
+            </div>
+            <div>
+                <label>Passwort (min. 6 Zeichen):</label>
+                <input type="password" name="password" required>
+            </div>
+            <div>
+                <label>Passwort bestätigen:</label>
+                <input type="password" name="confirm_password" required>
+            </div>
+            <button type="submit">Registrieren</button>
+        </form>
+
+        <p>Bereits registriert? <a href="{{ url_for('customer.login') }}">Login</a></p>
+        <p><a href="/">Zurück zur Startseite</a></p>
+    </div>
+</body>
+</html>
