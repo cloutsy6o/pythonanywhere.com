@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search Results Header -->
+    <div class="search-header mb-4">
+        <h1>Suchergebnisse für "{{ query }}"</h1>
+        <p class="text-muted">{{ results|length }} Produkte gefunden</p>
+
+        <!-- Search form -->
+        <form action="/search" method="GET" class="search-form mb-4">
+            <input type="text" name="q" value="{{ query }}"
+                   placeholder="Weiter suchen..."
+                   aria-label="Suchbegriff eingeben">
+            <button type="submit" aria-label="Suchen">
+                <span>🔍</span>
+            </button>
+        </form>
+    </div>
+
+    {% if results %}
+    <div class="grid grid-sm-1 grid-md-2 grid-lg-3 product-grid">
+        {% for product in results %}
+        <article class="product-card" itemscope itemtype="https://schema.org/Product">
+            <div class="product-image">
+                <img src="/static/{{ product.bild }}"
+                     alt="{{ product.titel }}"
+                     loading="lazy"
+                     itemprop="image"
+                     class="lazy-load"
+                     data-src="/static/{{ product.bild }}"
+                     onerror="this.src='/static/uploads/platzhalter.jpg'">
+            </div>
+
+            <div class="product-info">
+                <h3 itemprop="name">
+                    <a href="/product/{{ product.id }}" class="product-title" itemprop="url">
+                        {{ product.titel }}
+                    </a>
+                </h3>
+
+                <!-- Star Ratings -->
+                {% if product.bewertung_durchschnitt and product.bewertung_anzahl %}
+                <div class="star-rating">
+                    <div class="stars">
+                        {% for i in range(1, 6) %}
+                            {% if product.bewertung_durchschnitt >= i %}
+                                <span class="star filled">★</span>
+                            {% elif product.bewertung_durchschnitt >= i - 0.5 %}
+                                <span class="star half">★</span>
+                            {% else %}
+                                <span class="star">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="rating-text">
+                        {{ "%.1f"|format(product.bewertung_durchschnitt) }}
+                        <span class="rating-count">({{ product.bewertung_anzahl }})</span>
+                    </span>
+                </div>
+                {% endif %}
+
+                <!-- Prices -->
+                {% if product.min_price %}
+                <div class="prices" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                    <meta itemprop="priceCurrency" content="EUR">
+                    <meta itemprop="price" content="{{ product.min_price }}">
+
+                    <div class="best-price">
+                        {{ "%.2f"|format(product.min_price) }} €
+                    </div>
+                    <div class="price-label">Günstigster Preis</div>
+                </div>
+                {% endif %}
+
+                <!-- Shop buttons -->
+                {% if product.prices %}
+                <div class="shop-buttons">
+                    {% for price in product.prices|sort(attribute='aktueller_preis')[:3] %}
+                    <a href="{{ price.link }}"
+                       class="shop-btn"
+                       target="_blank"
+                       rel="noopener nofollow">
+                        <span class="shop-name">{{ price.name }}</span>
+                        <span class="shop-price">{{ "%.2f"|format(price.aktueller_preis) }} €</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <a href="/product/{{ product.id }}" class="btn btn-outline-primary w-100 mt-2">
+                    Details ansehen
+                </a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination would go here -->
+    {% else %}
+    <div class="no-results text-center py-5">
+        <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+        <h2>Keine Produkte gefunden</h2>
+        <p class="text-muted mb-4">Es wurden keine Produkte für "{{ query }}" gefunden.</p>
+        <div class="suggestions">
+            <p><strong>Vorschläge:</strong></p>
+            <ul style="list-style: none; padding: 0;">
+                <li>• Überprüfen Sie die Rechtschreibung</li>
+                <li>• Verwenden Sie allgemeinere Suchbegriffe</li>
+                <li>• Probieren Sie verwandte Begriffe</li>
+            </ul>
+        </div>
+        <a href="/" class="btn btn-primary mt-4">
+            Zurück zur Startseite
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Highlight search terms in results
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchTerm = "{{ query|lower }}";
+        const productTitles = document.querySelectorAll('.product-title');
+
+        productTitles.forEach(title => {
+            const text = title.textContent.toLowerCase();
+            if (text.includes(searchTerm)) {
+                // You could highlight the search term here
+                // For now, we'll just log it
+                console.log('Found search term in:', title.textContent);
+            }
+        });
+    });
+</script>
+{% endblock %}
