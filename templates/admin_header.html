@@ -1,0 +1,102 @@
+<!-- Admin Header Component -->
+<style>
+    .admin-header {
+        background: #232F3E;
+        padding: 15px 0;
+        border-bottom: 2px solid #FF9900;
+    }
+
+    .admin-header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .admin-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .admin-logo-text {
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .admin-logo span {
+        color: #FF9900;
+    }
+
+    .admin-nav-links {
+        display: flex;
+        gap: 15px;
+    }
+
+    .admin-nav-link {
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 3px;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .admin-nav-link:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .admin-nav-link.active {
+        background: rgba(255,255,255,0.2);
+        font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+        .admin-header-content {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-nav-links {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="admin-header">
+    <div class="admin-header-content">
+        <div class="admin-logo">
+            <div style="color: white; font-size: 28px;">🛍️</div>
+            <div class="admin-logo-text">Seller<span>Central</span></div>
+        </div>
+
+        <div class="admin-nav-links">
+            <a href="/admin/dashboard" class="admin-nav-link {% if request.path == '/admin/dashboard' %}active{% endif %}">
+                📊 Dashboard
+            </a>
+            <a href="/admin/orders" class="admin-nav-link {% if request.path.startswith('/admin/orders') %}active{% endif %}">
+                📦 Orders
+            </a>
+            <a href="/ticket/admin/dashboard" class="admin-nav-link {% if request.path.startswith('/ticket/admin') %}active{% endif %}">
+                🎫 Tickets
+            </a>
+            <a href="/product/add" class="admin-nav-link {% if request.path == '/product/add' %}active{% endif %}">
+                ➕ Add Product
+            </a>
+            <a href="/admin/panel" class="admin-nav-link {% if request.path == '/admin/panel' %}active{% endif %}">
+                ⚙️ Settings
+            </a>
+            <a href="/startseite" class="admin-nav-link">
+                🏪 Storefront
+            </a>
+            <a href="/logout" class="admin-nav-link" style="background: #d6392e;">
+                🚪 Logout
+            </a>
+        </div>
+    </div>
+</div>
