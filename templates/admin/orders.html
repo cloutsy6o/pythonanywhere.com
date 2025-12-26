@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Bestellungen</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header { background: #232f3e; color: white; padding: 15px 20px; margin-bottom: 20px; border-radius: 4px; }
+        .header h1 { margin: 0; font-size: 24px; }
+
+        /* Main content */
+        .main-content { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* Search/filter bar */
+        .search-bar { padding: 20px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+        .search-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .search-field { flex: 1; min-width: 200px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; font-size: 13px; }
+        input, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #a6a6a6;
+            border-radius: 3px;
+            font-size: 13px;
+            height: 35px;
+        }
+        .search-btn {
+            background: #ff9900;
+            color: black;
+            border: none;
+            padding: 0 20px;
+            height: 35px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .search-btn:hover { background: #e68a00; }
+        .clear-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: 1px solid #d5d9d9;
+            padding: 0 20px;
+            height: 35px;
+            border-radius: 3px;
+            cursor: pointer;
+            min-width: 100px;
+            text-decoration: none;
+            text-align: center;
+            line-height: 35px;
+            display: inline-block;
+        }
+        .clear-btn:hover { background: #e7e7e7; }
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: 1px solid #23923d;
+            padding: 0 20px;
+            height: 35px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 100px;
+            text-decoration: none;
+            text-align: center;
+            line-height: 35px;
+            display: inline-block;
+        }
+        .export-btn:hover { background: #23923d; }
+
+        /* Bulk actions bar */
+        .bulk-actions {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border: 1px solid #d5d9d9;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .bulk-select-info {
+            font-size: 13px;
+            color: #555;
+        }
+        .bulk-status-select {
+            padding: 8px 12px;
+            border: 1px solid #a6a6a6;
+            border-radius: 3px;
+            font-size: 13px;
+            min-width: 150px;
+        }
+        .bulk-update-btn {
+            background: #007bff;
+            color: white;
+            border: 1px solid #006fe6;
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .bulk-update-btn:hover { background: #006fe6; }
+        .bulk-update-btn:disabled {
+            background: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .select-all-checkbox {
+            margin-right: 10px;
+        }
+
+        /* Results info */
+        .results-info {
+            padding: 10px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .per-page-select {
+            padding: 5px 10px;
+            border: 1px solid #a6a6a6;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #232f3e; color: white; }
+        .order-checkbox { width: 20px; }
+
+        /* Status badges */
+        .status-pending { background: #ffc107; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; }
+        .status-processing { background: #17a2b8; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; }
+        .status-shipped { background: #007bff; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; }
+        .status-completed { background: #28a745; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; }
+        .status-cancelled { background: #dc3545; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; display: inline-block; }
+
+        .btn { padding: 6px 12px; text-decoration: none; border-radius: 3px; font-size: 14px; }
+        .btn-view { background: #007bff; color: white; }
+        .btn-update { background: #28a745; color: white; }
+
+        /* No results */
+        .no-results { text-align: center; padding: 40px; color: #767676; }
+
+        /* Pagination */
+        .pagination {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .page-link {
+            padding: 8px 12px;
+            border: 1px solid #d5d9d9;
+            background: white;
+            color: #0f1111;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 13px;
+            min-width: 35px;
+            text-align: center;
+        }
+        .page-link:hover {
+            background: #f8f9fa;
+            border-color: #a6a6a6;
+        }
+        .page-link.active {
+            background: #f0f0f0;
+            border-color: #ff9900;
+            font-weight: bold;
+        }
+        .page-link.disabled {
+            color: #6c757d;
+            pointer-events: none;
+            background: #f8f9fa;
+        }
+        .page-info {
+            color: #555;
+            font-size: 13px;
+            margin: 0 15px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'admin_header.html' %}
+
+    <div class="container">
+        <div class="header">
+            <h1>📦 Alle Bestellungen</h1>
+        </div>
+
+        <div class="main-content">
+            <!-- Search and Filter Bar -->
+            <div class="search-bar">
+                <form method="GET" action="/admin/orders">
+                    <div class="search-row">
+                        <div class="search-field">
+                            <label for="search">Suche (ID oder Kunde)</label>
+                            <input type="text" id="search" name="search"
+                                   value="{{ search_query or '' }}"
+                                   placeholder="Bestellnummer, Name oder E-Mail">
+                        </div>
+
+                        <div class="search-field">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="">Alle Status</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Ausstehend</option>
+                                <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>In Bearbeitung</option>
+                                <option value="shipped" {% if status_filter == 'shipped' %}selected{% endif %}>Versandt</option>
+                                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Abgeschlossen</option>
+                                <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Storniert</option>
+                            </select>
+                        </div>
+
+                        <div class="search-field">
+                            <label for="date_from">Von Datum</label>
+                            <input type="date" id="date_from" name="date_from"
+                                   value="{{ date_from or '' }}">
+                        </div>
+
+                        <div class="search-field">
+                            <label for="date_to">Bis Datum</label>
+                            <input type="date" id="date_to" name="date_to"
+                                   value="{{ date_to or '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Hidden pagination reset -->
+                    <input type="hidden" name="page" value="1">
+
+                    <div class="search-row">
+                        <button type="submit" class="search-btn">Suchen</button>
+                        <a href="/admin/orders" class="clear-btn">Filter löschen</a>
+                        <a href="/admin/orders/export?search={{ search_query }}&status={{ status_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
+                           class="export-btn">📥 CSV Export</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div class="bulk-actions" id="bulkActions" style="display: none;">
+                <div class="bulk-select-info">
+                    <span id="selectedCount">0</span> Bestellung(en) ausgewählt
+                </div>
+                <select id="bulkStatus" class="bulk-status-select">
+                    <option value="">Status auswählen...</option>
+                    <option value="pending">Auf Ausstehend setzen</option>
+                    <option value="processing">Auf In Bearbeitung setzen</option>
+                    <option value="shipped">Auf Versandt setzen</option>
+                    <option value="completed">Auf Abgeschlossen setzen</option>
+                    <option value="cancelled">Auf Storniert setzen</option>
+                </select>
+                <button type="button" class="bulk-update-btn" id="bulkUpdateBtn" disabled>
+                    Status aktualisieren
+                </button>
+            </div>
+
+            <!-- Results info -->
+            <div class="results-info">
+                <div>
+                    {% if search_query or status_filter or date_from or date_to %}
+                        <strong>{{ total_orders }}</strong> Bestellung(en) gefunden
+                        {% if search_query %} für "{{ search_query }}"{% endif %}
+                    {% else %}
+                        <strong>{{ total_orders }}</strong> Bestellung(en) insgesamt
+                    {% endif %}
+                    (Seite {{ page }} von {{ total_pages }})
+                </div>
+
+                <div>
+                    <label for="per_page">Pro Seite:</label>
+                    <select id="per_page" name="per_page" class="per-page-select" onchange="updatePerPage(this.value)">
+                        <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                        <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            {% if orders %}
+            <form id="bulkUpdateForm" method="POST" action="/admin/orders/bulk-update">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="order-checkbox">
+                                <input type="checkbox" id="selectAll" class="select-all-checkbox">
+                            </th>
+                            <th>Bestell-Nr</th>
+                            <th>Kunde</th>
+                            <th>Datum</th>
+                            <th>Artikel</th>
+                            <th>Betrag</th>
+                            <th>Status</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="order-checkbox" name="order_ids[]" value="{{ order.id }}">
+                            </td>
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>
+                                {{ order.first_name }} {{ order.last_name }}<br>
+                                <small>{{ order.email }}</small>
+                            </td>
+                            <td>{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ order.item_count }} Artikel</td>
+                            <td><strong>{{ "%.2f"|format(order.total_amount) }} €</strong></td>
+                            <td>
+                                <span class="status-{{ order.status }}">
+                                    {% if order.status == 'pending' %}Ausstehend
+                                    {% elif order.status == 'processing' %}In Bearbeitung
+                                    {% elif order.status == 'shipped' %}Versandt
+                                    {% elif order.status == 'completed' %}Abgeschlossen
+                                    {% elif order.status == 'cancelled' %}Storniert
+                                    {% else %}{{ order.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/admin/order/{{ order.id }}" class="btn btn-view">Ansehen</a>
+                                <a href="/admin/order/{{ order.id }}/update" class="btn btn-update">Status</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <input type="hidden" name="status" id="hiddenStatus">
+            </form>
+            {% else %}
+            <div class="no-results">
+                <h3>Keine Bestellungen gefunden</h3>
+                <p>{% if search_query or status_filter or date_from or date_to %}
+                    Versuchen Sie Ihre Suchkriterien zu ändern.
+                {% else %}
+                    Es sind noch keine Bestellungen vorhanden.
+                {% endif %}</p>
+            </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                <!-- First & Previous -->
+                <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=1, per_page=per_page) }}"
+                   class="page-link {% if page == 1 %}disabled{% endif %}">«</a>
+                <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=page-1, per_page=per_page) }}"
+                   class="page-link {% if page == 1 %}disabled{% endif %}">‹</a>
+
+                <!-- Page numbers -->
+                {% set start_page = [1, page-2]|max %}
+                {% set end_page = [total_pages, page+2]|min %}
+
+                {% if start_page > 1 %}
+                    <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=1, per_page=per_page) }}"
+                       class="page-link">1</a>
+                    {% if start_page > 2 %}<span class="page-link disabled">...</span>{% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                    <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=p, per_page=per_page) }}"
+                       class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+                {% endfor %}
+
+                {% if end_page < total_pages %}
+                    {% if end_page < total_pages - 1 %}<span class="page-link disabled">...</span>{% endif %}
+                    <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=total_pages, per_page=per_page) }}"
+                       class="page-link">{{ total_pages }}</a>
+                {% endif %}
+
+                <!-- Next & Last -->
+                <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=page+1, per_page=per_page) }}"
+                   class="page-link {% if page == total_pages %}disabled{% endif %}">›</a>
+                <a href="{{ url_for('admin.admin_orders', search=search_query, status=status_filter, date_from=date_from, date_to=date_to, page=total_pages, per_page=per_page) }}"
+                   class="page-link {% if page == total_pages %}disabled{% endif %}">»</a>
+
+                <span class="page-info">
+                    Zeige {{ ((page-1)*per_page)+1 }}-{{ [page*per_page, total_orders]|min }} von {{ total_orders }}
+                </span>
+            </div>
+            {% endif %}
+
+            <p style="margin-top: 20px;">
+                <a href="/admin/panel">← Zurück zum Admin Panel</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function updatePerPage(value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('per_page', value);
+            url.searchParams.set('page', '1'); // Reset to first page
+            window.location.href = url.toString();
+        }
+
+        // Bulk update functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+            const bulkStatus = document.getElementById('bulkStatus');
+            const bulkUpdateBtn = document.getElementById('bulkUpdateBtn');
+            const bulkUpdateForm = document.getElementById('bulkUpdateForm');
+            const hiddenStatus = document.getElementById('hiddenStatus');
+
+            // Update selected count and show/hide bulk actions
+            function updateSelection() {
+                const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+                const count = checkedBoxes.length;
+
+                selectedCount.textContent = count;
+
+                if (count > 0) {
+                    bulkActions.style.display = 'flex';
+                } else {
+                    bulkActions.style.display = 'none';
+                }
+
+                // Update "Select All" checkbox state
+                selectAllCheckbox.checked = count > 0 && count === orderCheckboxes.length;
+                selectAllCheckbox.indeterminate = count > 0 && count < orderCheckboxes.length;
+
+                // Enable/disable bulk update button
+                bulkUpdateBtn.disabled = count === 0 || bulkStatus.value === '';
+            }
+
+            // Select All functionality
+            selectAllCheckbox.addEventListener('change', function() {
+                const isChecked = this.checked;
+                orderCheckboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked;
+                });
+                updateSelection();
+            });
+
+            // Individual checkbox changes
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelection);
+            });
+
+            // Status select change
+            bulkStatus.addEventListener('change', function() {
+                bulkUpdateBtn.disabled = document.querySelectorAll('.order-checkbox:checked').length === 0 || this.value === '';
+            });
+
+            // Bulk update button click
+            bulkUpdateBtn.addEventListener('click', function() {
+                if (!this.disabled) {
+                    hiddenStatus.value = bulkStatus.value;
+                    if (confirm(`Möchten Sie wirklich den Status von ${selectedCount.textContent} Bestellung(en) aktualisieren?`)) {
+                        bulkUpdateForm.submit();
+                    }
+                }
+            });
+
+            // Initialize
+            updateSelection();
+        });
+    </script>
+</body>
+</html>
