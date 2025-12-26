@@ -5,8 +5,8 @@ from db import get_db_connection
 auth_bp = Blueprint('auth', __name__)
 
 # Hardcoded user for now (from your PHP)
-USER = "verbraucherherz"
-HASH = '$2y$10$cc9EgeoscHK4v03SAbvIsO0XVuEJoq6mtp5VlvjbgTAK9qZ3lx6Ye'
+USER = "username"
+HASH = 'password'
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
