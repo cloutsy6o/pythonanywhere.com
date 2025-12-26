@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Bestellung #{{ order.id }} aktualisieren</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f7f7f7; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #232f3e; border-bottom: 2px solid #ff9900; padding-bottom: 10px; }
+        .order-info { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 3px; font-size: 16px; }
+        .btn { padding: 10px 20px; text-decoration: none; border-radius: 3px; font-size: 14px; border: none; cursor: pointer; }
+        .btn-update { background: #ff9900; color: white; }
+        .btn-cancel { background: #6c757d; color: white; margin-left: 10px; }
+        .status-option { padding: 8px; margin: 5px 0; border-left: 4px solid; }
+        .status-pending { border-color: #ffc107; background: #fff8e1; }
+        .status-processing { border-color: #17a2b8; background: #e3f2fd; }
+        .status-shipped { border-color: #007bff; background: #e8f4ff; }
+        .status-completed { border-color: #28a745; background: #e8f5e9; }
+        .status-cancelled { border-color: #dc3545; background: #fde8e8; }
+    </style>
+</head>
+<body>
+    {% include 'admin_header.html' %}
+
+    <div class="container">
+        <h1>🔄 Bestellung #{{ order.id }} aktualisieren</h1>
+
+        <div class="order-info">
+            <p><strong>Kunde:</strong> Bestellung vom {{ order.order_date.strftime('%d.%m.%Y') }}</p>
+            <p><strong>Aktueller Status:</strong>
+                <span style="background:
+                    {% if order.status == 'pending' %}#ffc107
+                    {% elif order.status == 'processing' %}#17a2b8
+                    {% elif order.status == 'shipped' %}#007bff
+                    {% elif order.status == 'completed' %}#28a745
+                    {% else %}#dc3545{% endif %};
+                    color: white; padding: 4px 10px; border-radius: 3px;">
+                    {{ order.status }}
+                </span>
+            </p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Neuen Status auswählen:</label>
+                <select name="status" required>
+                    <option value="pending" class="status-option status-pending" {% if order.status == 'pending' %}selected{% endif %}>
+                        ⏳ Pending (Ausstehend)
+                    </option>
+                    <option value="processing" class="status-option status-processing" {% if order.status == 'processing' %}selected{% endif %}>
+                        🔄 Processing (In Bearbeitung)
+                    </option>
+                    <option value="shipped" class="status-option status-shipped" {% if order.status == 'shipped' %}selected{% endif %}>
+                        🚚 Shipped (Versandt)
+                    </option>
+                    <option value="completed" class="status-option status-completed" {% if order.status == 'completed' %}selected{% endif %}>
+                        ✅ Completed (Abgeschlossen)
+                    </option>
+                    <option value="cancelled" class="status-option status-cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>
+                        ❌ Cancelled (Storniert)
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-update">✅ Status aktualisieren</button>
+                <a href="/admin/order/{{ order.id }}" class="btn btn-cancel">❌ Abbrechen</a>
+            </div>
+        </form>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <a href="/admin/orders">← Zurück zu allen Bestellungen</a>
+        </div>
+    </div>
+</body>
+</html>
