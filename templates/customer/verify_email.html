@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Mail Bestätigung</title>
+    <style>
+        .container { max-width: 600px; margin: 100px auto; text-align: center; }
+        .success { color: green; font-size: 24px; }
+        .error { color: red; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% if success %}
+            <div class="success">✅ {{ message }}</div>
+            <p><a href="/customer/login">Zum Login</a></p>
+        {% else %}
+            <div class="error">❌ {{ message }}</div>
+            <p><a href="/customer/register">Erneut registrieren</a></p>
+        {% endif %}
+        <p><a href="/">Zur Startseite</a></p>
+    </div>
+</body>
+</html>
