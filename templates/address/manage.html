@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    {% include 'header.html' %}
+    <title>Adressen verwalten - Amazon Style</title>
+    <style>
+        .address-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: normal;
+            margin-bottom: 20px;
+            color: #0f1111;
+        }
+        .address-list {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .address-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+            position: relative;
+        }
+        .address-card.default {
+            border-color: #e77600;
+            border-width: 2px;
+        }
+        .address-badge {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: #e77600;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .address-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .address-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .address-actions {
+            display: flex;
+            gap: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .address-action {
+            color: #0066c0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .address-action:hover {
+            text-decoration: underline;
+            color: #c45500;
+        }
+        .add-address-btn {
+            background: #ffd814;
+            border: 1px solid #fcd200;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+        .add-address-btn:hover {
+            background: #f7ca00;
+        }
+        .address-form {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 25px;
+            background: white;
+            margin-top: 20px;
+            display: none;
+        }
+        .form-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #0f1111;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .form-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #a6a6a6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .save-btn {
+            background: #ffd814;
+            border: 1px solid #fcd200;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .cancel-btn {
+            background: #f0f2f2;
+            border: 1px solid #d5d9d9;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="address-container">
+        <h1 class="page-title">Ihre Adressen</h1>
+
+        <button class="add-address-btn" onclick="showAddressForm()">
+            ＋ Neue Adresse hinzufügen
+        </button>
+
+        <!-- Add Address Form -->
+        <div id="addressForm" class="address-form">
+            <div class="form-title">Neue Adresse hinzufügen</div>
+            <form id="newAddressForm">
+                <div class="form-group">
+                    <label class="form-label">Vollständiger Name</label>
+                    <input type="text" class="form-input" name="full_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Straße und Hausnummer</label>
+                    <input type="text" class="form-input" name="address_line1" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Adresszusatz (optional)</label>
+                    <input type="text" class="form-input" name="address_line2">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">PLZ</label>
+                        <input type="text" class="form-input" name="zip_code" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stadt</label>
+                        <input type="text" class="form-input" name="city" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bundesland (optional)</label>
+                    <input type="text" class="form-input" name="state">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Land</label>
+                    <select class="form-input" name="country">
+                        <option value="Deutschland">Deutschland</option>
+                        <option value="Österreich">Österreich</option>
+                        <option value="Schweiz">Schweiz</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefon (optional)</label>
+                    <input type="text" class="form-input" name="phone">
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="is_default" name="is_default">
+                    <label for="is_default" class="form-label" style="margin: 0;">
+                        Als Standard-Adresse festlegen
+                    </label>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="save-btn">Adresse speichern</button>
+                    <button type="button" class="cancel-btn" onclick="hideAddressForm()">Abbrechen</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Address List -->
+        <div class="address-list">
+            {% for address in addresses %}
+            <div class="address-card {% if address.is_default %}default{% endif %}">
+                {% if address.is_default %}
+                <div class="address-badge">Standard</div>
+                {% endif %}
+
+                <div class="address-name">{{ address.full_name }}</div>
+                <div class="address-text">
+                    {{ address.address_line1 }}<br>
+                    {% if address.address_line2 %}{{ address.address_line2 }}<br>{% endif %}
+                    {{ address.zip_code }} {{ address.city }}<br>
+                    {% if address.state %}{{ address.state }}<br>{% endif %}
+                    {{ address.country }}<br>
+                    {% if address.phone %}📞 {{ address.phone }}{% endif %}
+                </div>
+
+                <div class="address-actions">
+                    {% if not address.is_default %}
+                    <span class="address-action" onclick="setDefaultAddress({{ address.id }})">
+                        Als Standard festlegen
+                    </span>
+                    {% endif %}
+                    <span class="address-action" onclick="deleteAddress({{ address.id }})">
+                        Löschen
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if not addresses %}
+            <div style="text-align: center; padding: 40px; color: #555;">
+                <p>Sie haben noch keine Adressen gespeichert.</p>
+                <p>Klicken Sie auf "Neue Adresse hinzufügen", um Ihre erste Adresse zu speichern.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/cart/checkout" style="color: #0066c0;">← Zurück zur Kasse</a>
+        </div>
+    </div>
+
+    <script>
+    function showAddressForm() {
+        document.getElementById('addressForm').style.display = 'block';
+        window.scrollTo({top: document.getElementById('addressForm').offsetTop - 20, behavior: 'smooth'});
+    }
+
+    function hideAddressForm() {
+        document.getElementById('addressForm').style.display = 'none';
+        document.getElementById('newAddressForm').reset();
+    }
+
+    document.getElementById('newAddressForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        data.is_default = document.getElementById('is_default').checked;
+
+        fetch('/address/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Fehler: ' + result.error);
+            }
+        });
+    });
+
+    function setDefaultAddress(addressId) {
+        fetch(`/address/set-default/${addressId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                location.reload();
+            }
+        });
+    }
+
+    function deleteAddress(addressId) {
+        if (confirm('Möchten Sie diese Adresse wirklich löschen?')) {
+            fetch(`/address/delete/${addressId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    // Load default address for checkout
+    function loadDefaultAddress() {
+        fetch('/address/get-default')
+            .then(response => response.json())
+            .then(data => {
+                if (data.address) {
+                    localStorage.setItem('defaultAddress', JSON.stringify(data.address));
+                }
+            });
+    }
+
+    // Load address on page load
+    window.addEventListener('load', loadDefaultAddress);
+    </script>
+</body>
+</html>
