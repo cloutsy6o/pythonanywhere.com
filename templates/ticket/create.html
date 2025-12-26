@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kundensupport - Neues Ticket</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 800px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header-sub { font-size: 14px; color: #ccc; margin-top: 5px; }
+
+        /* Form card */
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        .required:after { content: " *"; color: #c40000; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #a6a6a6;
+            border-radius: 3px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff9900;
+            box-shadow: 0 0 3px #ff9900;
+            outline: none;
+        }
+        textarea { min-height: 150px; resize: vertical; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed #d5d9d9;
+            border-radius: 4px;
+            padding: 25px;
+            text-align: center;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 5px;
+        }
+        .file-upload-area:hover {
+            border-color: #ff9900;
+            background: #fff8e6;
+        }
+        .file-upload-area.dragover {
+            border-color: #ff9900;
+            background: #fff8e6;
+            border-style: solid;
+        }
+        .file-upload-icon {
+            font-size: 40px;
+            color: #767676;
+            margin-bottom: 10px;
+        }
+        .file-upload-text {
+            font-weight: bold;
+            color: #555;
+            margin: 10px 0;
+        }
+        .file-upload-subtext {
+            font-size: 13px;
+            color: #767676;
+            margin-bottom: 15px;
+        }
+        .file-upload-limits {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+        .file-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e7e7e7;
+            border-radius: 3px;
+            padding: 10px;
+            background: #f9f9f9;
+            display: none;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .file-item:last-child { border-bottom: none; }
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-icon {
+            font-size: 16px;
+            color: #555;
+        }
+        .file-name {
+            color: #0066c0;
+            word-break: break-all;
+        }
+        .file-size {
+            color: #767676;
+            font-size: 11px;
+        }
+        .file-remove {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .file-remove:hover {
+            background: #f8d7da;
+        }
+
+        .priority-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        .priority-option {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .priority-option:hover { background: #f9f9f9; }
+        .priority-option.selected {
+            border-color: #ff9900;
+            background: #fff8e6;
+        }
+        .priority-low { color: #28a745; }
+        .priority-medium { color: #ffc107; }
+        .priority-high { color: #fd7e14; }
+        .priority-urgent { color: #dc3545; }
+
+        .submit-btn {
+            background: #ff9900;
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 3px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .submit-btn:hover { background: #e68a00; }
+        .submit-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066c0;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .help-text {
+            font-size: 12px;
+            color: #767676;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 Kundensupport</h1>
+            <div class="header-sub">Wir helfen Ihnen gerne weiter. Bitte füllen Sie das Formular aus.</div>
+        </div>
+
+        <div class="form-card">
+            <form method="POST" action="/ticket/create" enctype="multipart/form-data" id="ticketForm">
+                <!-- Customer Info -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required" for="name">Ihr Name</label>
+                        <input type="text" id="name" name="name"
+                               value="{{ session.get('customer_name', '') }}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required" for="email">E-Mail Adresse</label>
+                        <input type="email" id="email" name="email"
+                               value="{{ session.get('customer_email', '') }}"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Ticket Info -->
+                <div class="form-group">
+                    <label class="required" for="subject">Betreff</label>
+                    <input type="text" id="subject" name="subject"
+                           placeholder="Kurze Beschreibung Ihres Anliegens"
+                           required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Kategorie</label>
+                        <select id="category" name="category">
+                            <option value="order">Bestellproblem</option>
+                            <option value="product">Produktfrage</option>
+                            <option value="payment">Zahlungsproblem</option>
+                            <option value="shipping">Lieferung & Versand</option>
+                            <option value="account">Konto & Login</option>
+                            <option value="other" selected>Sonstiges</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="order_id">Bestellnummer (falls zutreffend)</label>
+                        <input type="text" id="order_id" name="order_id"
+                               placeholder="z.B. #12345">
+                        <div class="help-text">Optional - hilft uns bei der schnelleren Bearbeitung</div>
+                    </div>
+                </div>
+
+                <!-- Priority -->
+                <div class="form-group">
+                    <label>Priorität</label>
+                    <div class="priority-badges">
+                        <div class="priority-option priority-low"
+                             onclick="selectPriority('low')"
+                             data-value="low">
+                            Niedrig
+                        </div>
+                        <div class="priority-option priority-medium selected"
+                             onclick="selectPriority('medium')"
+                             data-value="medium">
+                            Normal
+                        </div>
+                        <div class="priority-option priority-high"
+                             onclick="selectPriority('high')"
+                             data-value="high">
+                            Hoch
+                        </div>
+                        <div class="priority-option priority-urgent"
+                             onclick="selectPriority('urgent')"
+                             data-value="urgent">
+                            Dringend
+                        </div>
+                    </div>
+                    <input type="hidden" id="priority" name="priority" value="medium">
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="required" for="description">Beschreibung</label>
+                    <textarea id="description" name="description"
+                              placeholder="Bitte beschreiben Sie Ihr Problem oder Anliegen detailliert..."
+                              required></textarea>
+                    <div class="help-text">
+                        Bitte geben Sie so viele Details wie möglich an. Bei Bestellproblemen bitte Bestellnummer angeben.
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="form-group">
+                    <label for="attachments">Dateianhänge (optional)</label>
+                    <input type="file" id="attachments" name="attachments[]"
+                           multiple accept=".png,.jpg,.jpeg,.gif,.pdf,.txt,.doc,.docx,.xls,.xlsx,.zip"
+                           style="display: none;"
+                           onchange="handleFiles(this.files)">
+
+                    <div id="fileUploadArea" class="file-upload-area">
+                        <div class="file-upload-icon">📎</div>
+                        <div class="file-upload-text">Dateien zum Hochladen auswählen</div>
+                        <div class="file-upload-subtext">Oder ziehen Sie Dateien hierher</div>
+                        <div class="file-upload-limits">
+                            Maximale Dateigröße: 5 MB • Erlaubte Formate: PNG, JPG, GIF, PDF, TXT, DOC, XLS, ZIP
+                        </div>
+                    </div>
+
+                    <div id="fileList" class="file-list"></div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Ticket erstellen</button>
+
+                <a href="/" class="back-link">← Zurück zur Startseite</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        function selectPriority(value) {
+            document.querySelectorAll('.priority-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-value="${value}"]`).classList.add('selected');
+            document.getElementById('priority').value = value;
+        }
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`Datei "${file.name}" ist zu groß (max. 5 MB)`);
+                    continue;
+                }
+
+                // Check if file already exists
+                if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push(file);
+                }
+            }
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const fileUploadArea = document.getElementById('fileUploadArea');
+
+            if (selectedFiles.length > 0) {
+                fileList.style.display = 'block';
+                fileList.innerHTML = '';
+
+                selectedFiles.forEach((file, index) => {
+                    const fileSize = formatFileSize(file.size);
+                    const fileExt = file.name.split('.').pop().toLowerCase();
+                    const fileIcon = getFileIcon(fileExt);
+
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <span class="file-icon">${fileIcon}</span>
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-size">${fileSize}</span>
+                        </div>
+                        <button type="button" class="file-remove" onclick="removeFile(${index})">×</button>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+
+                fileUploadArea.innerHTML = `
+                    <div class="file-upload-icon">📎</div>
+                    <div class="file-upload-text">${selectedFiles.length} Datei(en) ausgewählt</div>
+                    <div class="file-upload-subtext">Klicken oder ziehen Sie weitere Dateien</div>
+                    <div class="file-upload-limits">
+                        Maximale Dateigröße: 5 MB • Erlaubte Formate: PNG, JPG, GIF, PDF, TXT, DOC, XLS, ZIP
+                    </div>
+                `;
+            } else {
+                fileList.style.display = 'none';
+                fileUploadArea.innerHTML = `
+                    <div class="file-upload-icon">📎</div>
+                    <div class="file-upload-text">Dateien zum Hochladen auswählen</div>
+                    <div class="file-upload-subtext">Oder ziehen Sie Dateien hierher</div>
+                    <div class="file-upload-limits">
+                        Maximale Dateigröße: 5 MB • Erlaubte Formate: PNG, JPG, GIF, PDF, TXT, DOC, XLS, ZIP
+                    </div>
+                `;
+            }
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function getFileIcon(ext) {
+            const icons = {
+                'png': '🖼️', 'jpg': '🖼️', 'jpeg': '🖼️', 'gif': '🖼️',
+                'pdf': '📄', 'txt': '📄',
+                'doc': '📝', 'docx': '📝',
+                'xls': '📊', 'xlsx': '📊',
+                'zip': '📦'
+            };
+            return icons[ext] || '📎';
+        }
+
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('attachments');
+
+            // Auto-fill if customer is logged in
+            {% if session.get('customer_id') %}
+            document.getElementById('name').readOnly = true;
+            document.getElementById('email').readOnly = true;
+            {% endif %}
+
+            // Click to open file dialog
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files.length) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+
+            // Form submission - prepare files for upload
+            document.getElementById('ticketForm').addEventListener('submit', function(e) {
+                // Files will be uploaded via form with enctype="multipart/form-data"
+                // No need for special handling
+            });
+        });
+    </script>
+</body>
+</html>
