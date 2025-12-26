@@ -44,8 +44,8 @@ for module_name, bp_name in modules_to_register:
         app.register_blueprint(bp)
 
 # Hardcoded admin user
-USER = "verbraucherherz"
-HASH = '$2y$10$cc9EgeoscHK4v03SAbvIsO0XVuEJoq6mtp5VlvjbgTAK9qZ3lx6Ye'
+USER = "username"
+HASH = 'password'
 
 @app.route('/sitemap.xml')
 def sitemap():
