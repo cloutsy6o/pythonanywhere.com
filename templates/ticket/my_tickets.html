@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>My Support Tickets - GünstigerGefunden</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f3f3f3; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Amazon-style header */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header-sub { font-size: 14px; color: #ccc; margin-top: 5px; }
+
+        /* Action bar */
+        .action-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .create-btn {
+            background: #ff9900;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .create-btn:hover { background: #e68a00; }
+
+        /* Tickets table */
+        .tickets-table {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        tr:hover { background-color: #f9f9f9; }
+
+        /* Ticket info */
+        .ticket-subject {
+            font-weight: bold;
+            color: #232f3e;
+            margin-bottom: 3px;
+        }
+        .ticket-meta {
+            font-size: 12px;
+            color: #767676;
+        }
+        .ticket-number {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-open { background: #dc3545; color: white; }
+        .status-in_progress { background: #007bff; color: white; }
+        .status-waiting_customer { background: #ffc107; color: black; }
+        .status-resolved { background: #28a745; color: white; }
+        .status-closed { background: #6c757d; color: white; }
+
+        /* Priority indicators */
+        .priority-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .priority-urgent { background: #dc3545; }
+        .priority-high { background: #fd7e14; }
+        .priority-medium { background: #ffc107; }
+        .priority-low { background: #28a745; }
+
+        /* Action buttons */
+        .action-btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .btn-view {
+            background: #007bff;
+            color: white;
+            border: 1px solid #006fe6;
+        }
+        .btn-view:hover { background: #006fe6; }
+        .btn-reply {
+            background: #28a745;
+            color: white;
+            border: 1px solid #23923d;
+            margin-left: 5px;
+        }
+        .btn-reply:hover { background: #23923d; }
+
+        /* No tickets */
+        .no-tickets {
+            text-align: center;
+            padding: 60px 20px;
+            color: #767676;
+        }
+        .no-tickets-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #555;
+            text-decoration: none;
+            border-radius: 3px;
+            border: 1px solid #d5d9d9;
+            font-size: 14px;
+        }
+        .nav-btn:hover { background: #e7e7e7; }
+        .nav-btn.primary {
+            background: #0066c0;
+            color: white;
+            border-color: #0056a3;
+        }
+        .nav-btn.primary:hover { background: #0056a3; }
+
+        /* Message count */
+        .message-count {
+            background: #6c757d;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 My Support Tickets</h1>
+            <div class="header-sub">View and manage all your support requests</div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div>
+                <strong>{{ tickets|length }}</strong> Ticket(s) total
+            </div>
+            <a href="/ticket/create" class="create-btn">➕ Create New Ticket</a>
+        </div>
+
+        <!-- Tickets Table -->
+        {% if tickets %}
+        <div class="tickets-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Last Activity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td>
+                            <span class="ticket-number">#{{ ticket.ticket_number }}</span>
+                            <div class="ticket-meta">
+                                <span class="priority-dot priority-{{ ticket.priority }}"></span>
+                                {{ ticket.priority|title }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="ticket-subject">{{ ticket.subject }}</div>
+                            <div class="ticket-meta">
+                                {{ ticket.category|title }}
+                                {% if ticket.order_id %}
+                                • Order #{{ ticket.order_id }}
+                                {% endif %}
+                                <span class="message-count">{{ ticket.message_count }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ ticket.status }}">
+                                {% if ticket.status == 'open' %}Open
+                                {% elif ticket.status == 'in_progress' %}In Progress
+                                {% elif ticket.status == 'waiting_customer' %}Waiting for You
+                                {% elif ticket.status == 'resolved' %}Resolved
+                                {% elif ticket.status == 'closed' %}Closed
+                                {% else %}{{ ticket.status }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {{ ticket.created_at.strftime('%d.%m.%Y') }}
+                            <div class="ticket-meta">{{ ticket.created_at.strftime('%H:%M') }}</div>
+                        </td>
+                        <td>
+                            {% if ticket.last_activity %}
+                                {{ ticket.last_activity.strftime('%d.%m.%Y') }}
+                                <div class="ticket-meta">{{ ticket.last_activity.strftime('%H:%M') }}</div>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/ticket/view/{{ ticket.ticket_number }}" class="action-btn btn-view">View</a>
+                            {% if ticket.status != 'closed' %}
+                            <a href="/ticket/view/{{ ticket.ticket_number }}" class="action-btn btn-reply">Reply</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <!-- No Tickets -->
+        <div class="no-tickets">
+            <div class="no-tickets-icon">📭</div>
+            <h3>No Support Tickets Yet</h3>
+            <p>You haven't created any support tickets yet.</p>
+            <a href="/ticket/create" class="create-btn" style="margin-top: 20px;">Create Your First Ticket</a>
+        </div>
+        {% endif %}
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">← Back to Home</a>
+            <a href="/customer/profile" class="nav-btn">👤 My Account</a>
+            <a href="/order/history" class="nav-btn primary">📦 My Orders</a>
+        </div>
+    </div>
+</body>
+</html>
